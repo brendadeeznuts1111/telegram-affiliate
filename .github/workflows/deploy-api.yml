@@ -1,0 +1,38 @@
+name: Deploy API (Worker)
+
+on:
+  push:
+    paths:
+      - "apps/api/**"
+      - "packages/schemas/**"
+      - ".github/workflows/deploy-api.yml"
+    branches: [main]
+  pull_request:
+    paths:
+      - "apps/api/**"
+      - "packages/schemas/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Deploy to production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: bun --filter=api deploy:prod
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Deploy to staging (PR preview)
+        if: github.event_name == 'pull_request'
+        run: bun --filter=api deploy:staging
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

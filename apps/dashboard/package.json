@@ -1,0 +1,33 @@
+{
+  "name": "dashboard",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --base=/",
+    "preview": "vite preview",
+    "deploy:staging": "wrangler pages deploy dist --project-name=telegram-affiliate-dashboard --branch=staging",
+    "deploy:prod": "wrangler pages deploy dist --project-name=telegram-affiliate-dashboard --branch=main"
+  },
+  "dependencies": {
+    "@affiliate/schemas": "workspace:*",
+    "@telegram-apps/sdk": "^1.1.3",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.7",
+    "axios": "^1.6.7",
+    "zod": "^3.22.4",
+    "d3": "^7.9.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@types/d3": "^7.4.3",
+    "typescript": "^5.4.2",
+    "vue-tsc": "^2.0.6",
+    "vite": "^5.1.6",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35"
+  }
+}
+

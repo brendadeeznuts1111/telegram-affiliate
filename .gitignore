@@ -1,0 +1,47 @@
+# Bun
+node_modules/
+bun.lockb
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+apps/*/.env.local
+
+# Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+data/
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+.vitest/
+e2e-results.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python (legacy)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+

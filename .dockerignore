@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+apps/*/node_modules
+packages/*/node_modules
+
+# Build outputs
+dist
+.wrangler
+.next
+.vercel
+apps/*/dist
+apps/*/.wrangler
+
+# Environment files
+.env
+.env.local
+.env.*.local
+apps/*/.env.local
+
+# Logs
+*.log
+logs
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+data/*.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs
+archive
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+

@@ -1,0 +1,45 @@
+name: Deploy Dashboard (Pages)
+
+on:
+  push:
+    paths:
+      - "apps/dashboard/**"
+      - "packages/schemas/**"
+      - ".github/workflows/deploy-dashboard.yml"
+    branches: [main]
+  pull_request:
+    paths:
+      - "apps/dashboard/**"
+      - "packages/schemas/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build dashboard
+        run: bun run build:ui
+        env:
+          VITE_API_URL: ${{ github.event_name == 'pull_request' && 'https://telegram-affiliate-api-staging.workers.dev/api' || 'https://telegram-affiliate-api.workers.dev/api' }}
+
+      - name: Deploy to production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: bunx wrangler pages deploy dist --project-name=telegram-affiliate-dashboard --branch=main
+        working-directory: apps/dashboard
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+
+      - name: Deploy to staging (PR preview)
+        if: github.event_name == 'pull_request'
+        run: bunx wrangler pages deploy dist --project-name=telegram-affiliate-dashboard --branch=staging
+        working-directory: apps/dashboard
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

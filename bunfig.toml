@@ -1,0 +1,27 @@
+[install]
+# Force npm registry for ALL packages in this project
+registry = "https://registry.npmjs.org/"
+
+# Override any global registry settings
+[install.scopes]
+"@vitest" = { url = "https://registry.npmjs.org/" }
+"@playwright" = { url = "https://registry.npmjs.org/" }
+"@cloudflare" = { url = "https://registry.npmjs.org/" }
+"@esbuild" = { url = "https://registry.npmjs.org/" }
+"@esbuild-plugins" = { url = "https://registry.npmjs.org/" }
+"@fastify" = { url = "https://registry.npmjs.org/" }
+"@changesets" = { url = "https://registry.npmjs.org/" }
+"@cspotcode" = { url = "https://registry.npmjs.org/" }
+"@img" = { url = "https://registry.npmjs.org/" }
+"@jest" = { url = "https://registry.npmjs.org/" }
+"@babel" = { url = "https://registry.npmjs.org/" }
+"@types" = { url = "https://registry.npmjs.org/" }
+"@polka" = { url = "https://registry.npmjs.org/" }
+"@inquirer" = { url = "https://registry.npmjs.org/" }
+"@jridgewell" = { url = "https://registry.npmjs.org/" }
+"@manypkg" = { url = "https://registry.npmjs.org/" }
+"@ampproject" = { url = "https://registry.npmjs.org/" }
+"@bcoe" = { url = "https://registry.npmjs.org/" }
+"@istanbuljs" = { url = "https://registry.npmjs.org/" }
+"@emnapi" = { url = "https://registry.npmjs.org/" }
+"@sinclair" = { url = "https://registry.npmjs.org/" }

@@ -1,0 +1,37 @@
+title = "Gitleaks Security Config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram Bot Token"
+regex = '''[0-9]{8,10}:[a-zA-Z0-9_-]{35}'''
+tags = ["telegram", "token", "secret"]
+
+[[rules]]
+id = "cloudflare-api-token"
+description = "Cloudflare API Token"
+regex = '''[a-zA-Z0-9_\-]{40}'''
+tags = ["cloudflare", "api", "token"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["aws", "key", "secret"]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(api[_-]?key|apikey|api[_-]?token)['":\s]*[a-zA-Z0-9_\-]{20,}'''
+tags = ["api", "key"]
+
+[allowlist]
+description = "Allowlist for false positives"
+paths = [
+  '''^\.git/''',
+  '''^node_modules/''',
+  '''^\.bun/''',
+]
+

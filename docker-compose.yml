@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Telegram Bot
+  bot:
+    build: .
+    container_name: telegram-affiliate-bot
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - affiliate-network
+
+  # API Server
+  api:
+    build: .
+    container_name: telegram-affiliate-api
+    command: bun run dev:api
+    env_file:
+      - .env
+      - apps/api/.env.local
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - affiliate-network
+
+  # Dashboard
+  dashboard:
+    build: .
+    container_name: telegram-affiliate-dashboard
+    command: bun run dev:ui
+    env_file:
+      - apps/dashboard/.env.local
+    ports:
+      - "5175:5175"
+    volumes:
+      - ./apps/dashboard/src:/app/apps/dashboard/src
+    restart: unless-stopped
+    depends_on:
+      - api
+    networks:
+      - affiliate-network
+
+  # Redis (optional, for caching)
+  redis:
+    image: redis:7-alpine
+    container_name: telegram-affiliate-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - affiliate-network
+
+  # MailHog (for testing emails in development)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: telegram-affiliate-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    restart: unless-stopped
+    networks:
+      - affiliate-network
+
+networks:
+  affiliate-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+
