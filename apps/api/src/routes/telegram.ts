@@ -1,10 +1,13 @@
 import { Hono } from 'hono';
-import { webhookCallback } from 'grammy';
+import { createWorkerBot, getWebhookHandler } from '../bot/worker-bot';
 
 type Bindings = {
   BOT_TOKEN: string;
   ADMIN_IDS: string;
   DB: D1Database;
+  AFFILIATE_KV: KVNamespace;
+  PUBLIC_URL?: string;
+  TELEGRAM_BOT_USERNAME?: string;
 };
 
 export const telegram = new Hono<{ Bindings: Bindings }>();
@@ -22,20 +25,21 @@ telegram.post('/webhook', async (c) => {
   }
 
   try {
-    // Import the bot instance
-    // Note: You'll need to refactor the bot to be importable
-    // For now, this is a placeholder structure
+    // Create bot instance with environment
+    const bot = createWorkerBot({
+      BOT_TOKEN: c.env.BOT_TOKEN,
+      ADMIN_IDS: c.env.ADMIN_IDS,
+      DB: c.env.DB,
+      AFFILIATE_KV: c.env.AFFILIATE_KV,
+      PUBLIC_URL: c.env.PUBLIC_URL,
+      TELEGRAM_BOT_USERNAME: c.env.TELEGRAM_BOT_USERNAME,
+    });
+
+    // Get webhook callback for Hono
+    const handleUpdate = getWebhookHandler(bot);
     
-    const update = await c.req.json();
-    
-    // Log the update for debugging
-    console.log('Received Telegram update:', JSON.stringify(update, null, 2));
-    
-    // TODO: Process the update with your bot instance
-    // const bot = createBot(botToken);
-    // await bot.handleUpdate(update);
-    
-    return c.json({ ok: true });
+    // Process the update
+    return await handleUpdate(c);
   } catch (error) {
     console.error('Error processing webhook:', error);
     return c.json({ error: 'Internal server error' }, 500);
