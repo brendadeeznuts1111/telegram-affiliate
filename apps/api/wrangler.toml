@@ -24,7 +24,7 @@ preview_id = "d6c780ba8cde4775acbff2f903489042"
 # Environment variables (non-secret)
 [vars]
 PUBLIC_URL = "https://telegram-affiliate-api.workers.dev"
-TELEGRAM_BOT_USERNAME = "your_bot_username"
+TELEGRAM_BOT_USERNAME = "Firesupportcs_bot"
 
 # Secrets (set with: bunx wrangler secret put <NAME> --env production)
 # - BOT_TOKEN
