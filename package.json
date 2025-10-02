@@ -59,7 +59,9 @@
     "ship:staging": "bun scripts/ship.ts --staging-only",
     "ship:fast": "bun scripts/ship.ts --skip-tests",
     "launch:affiliate": "bun scripts/launch-affiliate.ts",
-    "fix:critical": "bun scripts/fix-critical-issues.ts"
+    "fix:critical": "bun scripts/fix-critical-issues.ts",
+    "demo:cli": "bun scripts/demo-cli-features.ts",
+    "demo:cli:debug": "bun scripts/demo-cli-features.ts --debug"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
