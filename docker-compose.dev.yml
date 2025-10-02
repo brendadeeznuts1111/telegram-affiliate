@@ -1,0 +1,127 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # Telegram Bot
+  # ============================================
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUN_VERSION: 1.1.43
+      cache_from:
+        - telegram-affiliate:latest
+    container_name: telegram-bot-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+      - DATABASE_PATH=/data/affiliate_system.db
+    volumes:
+      - ./src:/app/src:ro
+      - ./data:/data
+      - bun-cache:/root/.bun
+    command: bun --watch src/index.ts
+    networks:
+      - affiliate-network
+    depends_on:
+      - api
+    labels:
+      com.telegram-affiliate.service: "bot"
+      com.telegram-affiliate.env: "development"
+
+  # ============================================
+  # API (Local Bun Server)
+  # ============================================
+  api:
+    image: oven/bun:1.1.43-alpine
+    container_name: telegram-api-dev
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    volumes:
+      - ./apps/api:/app:ro
+      - ./data:/data
+      - bun-cache-api:/root/.bun
+    command: bun --watch src/index.ts
+    ports:
+      - "3001:3001"
+    networks:
+      - affiliate-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      com.telegram-affiliate.service: "api"
+      com.telegram-affiliate.env: "development"
+
+  # ============================================
+  # Dashboard (Vue 3 + Vite)
+  # ============================================
+  dashboard:
+    image: oven/bun:1.1.43-alpine
+    container_name: telegram-dashboard-dev
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001
+    volumes:
+      - ./apps/dashboard:/app
+      - bun-cache-dashboard:/root/.bun
+      - /app/node_modules
+    command: bun run dev --host 0.0.0.0
+    ports:
+      - "5173:5173"
+    networks:
+      - affiliate-network
+    depends_on:
+      - api
+    labels:
+      com.telegram-affiliate.service: "dashboard"
+      com.telegram-affiliate.env: "development"
+
+  # ============================================
+  # SQLite Web UI (Optional)
+  # ============================================
+  sqlite-web:
+    image: coleifer/sqlite-web:latest
+    container_name: sqlite-web-dev
+    restart: unless-stopped
+    environment:
+      - SQLITE_DATABASE=/data/affiliate_system.db
+    volumes:
+      - ./data:/data:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - affiliate-network
+    profiles:
+      - debug
+    labels:
+      com.telegram-affiliate.service: "sqlite-web"
+      com.telegram-affiliate.env: "development"
+
+volumes:
+  bun-cache:
+    name: telegram-affiliate-bun-cache
+    driver: local
+  bun-cache-api:
+    name: telegram-affiliate-api-cache
+    driver: local
+  bun-cache-dashboard:
+    name: telegram-affiliate-dashboard-cache
+    driver: local
+
+networks:
+  affiliate-network:
+    name: telegram-affiliate-network
+    driver: bridge
+

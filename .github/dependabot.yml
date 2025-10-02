@@ -1,0 +1,67 @@
+version: 2
+updates:
+  # Enable version updates for npm (Bun compatible)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    commit-message:
+      prefix: "⬆️ deps:"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "bun"
+    reviewers:
+      - "brendadeeznuts1111"
+    assignees:
+      - "brendadeeznuts1111"
+
+  # API workspace
+  - package-ecosystem: "npm"
+    directory: "/apps/api"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "⬆️ deps(api):"
+    labels:
+      - "dependencies"
+      - "api"
+
+  # Dashboard workspace
+  - package-ecosystem: "npm"
+    directory: "/apps/dashboard"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "⬆️ deps(dashboard):"
+    labels:
+      - "dependencies"
+      - "dashboard"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "⬆️ ci:"
+    labels:
+      - "github-actions"
+      - "ci/cd"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "⬆️ docker:"
+    labels:
+      - "docker"
+

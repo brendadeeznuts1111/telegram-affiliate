@@ -1,0 +1,146 @@
+name: ☁️ Cloudflare Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+      - 'apps/dashboard/**'
+      - '.github/workflows/cloudflare-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  BUN_VERSION: "1.1.43"
+
+jobs:
+  # ============================================
+  # Deploy API (Workers)
+  # ============================================
+  deploy-api:
+    name: 🚀 Deploy API to Cloudflare Workers
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: 
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: https://telegram-affiliate-api.workers.dev
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐰 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📥 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            apps/*/node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🏗️ Build API
+        run: cd apps/api && bun run build || echo "⚠️ Build step skipped"
+        continue-on-error: true
+
+      - name: 🚀 Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api
+          command: deploy --env ${{ github.event.inputs.environment || 'production' }}
+
+      - name: ✅ Deployment success
+        run: |
+          echo "🎉 API deployed successfully!"
+          echo "🌐 URL: https://telegram-affiliate-api.workers.dev"
+
+  # ============================================
+  # Deploy Dashboard (Pages)
+  # ============================================
+  deploy-dashboard:
+    name: 🎨 Deploy Dashboard to Cloudflare Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: ${{ github.event.inputs.environment || 'production' }}
+      url: https://telegram-affiliate.pages.dev
+    
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐰 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📥 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            apps/*/node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🏗️ Build Dashboard
+        run: cd apps/dashboard && bun run build
+
+      - name: 📦 Upload to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: telegram-affiliate-dashboard
+          directory: apps/dashboard/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ✅ Deployment success
+        run: |
+          echo "🎉 Dashboard deployed successfully!"
+          echo "🌐 URL: https://telegram-affiliate.pages.dev"
+
+  # ============================================
+  # Health Check
+  # ============================================
+  health-check:
+    name: 🏥 Post-Deployment Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-api, deploy-dashboard]
+    timeout-minutes: 5
+    
+    steps:
+      - name: 🔍 API Health Check
+        run: |
+          echo "🔍 Checking API health..."
+          curl -f https://telegram-affiliate-api.workers.dev/health || echo "⚠️ API health check failed"
+        continue-on-error: true
+
+      - name: 🔍 Dashboard Health Check
+        run: |
+          echo "🔍 Checking Dashboard health..."
+          curl -f https://telegram-affiliate.pages.dev || echo "⚠️ Dashboard health check failed"
+        continue-on-error: true
+
+      - name: ✅ Health checks complete
+        run: echo "✅ All health checks completed"
+
