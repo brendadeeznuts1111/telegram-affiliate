@@ -17,5 +17,11 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
+  define: {
+    // Set API URL for production builds
+    'import.meta.env.VITE_API_URL': JSON.stringify(
+      process.env.VITE_API_URL || 'https://telegram-affiliate-api.nolarose1968-806.workers.dev/api'
+    ),
+  },
 });
 
