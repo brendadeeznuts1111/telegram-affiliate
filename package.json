@@ -61,7 +61,9 @@
     "launch:affiliate": "bun scripts/launch-affiliate.ts",
     "fix:critical": "bun scripts/fix-critical-issues.ts",
     "demo:cli": "bun scripts/demo-cli-features.ts",
-    "demo:cli:debug": "bun scripts/demo-cli-features.ts --debug"
+    "demo:cli:debug": "bun scripts/demo-cli-features.ts --debug",
+    "verify": "bun scripts/verify-setup.ts",
+    "verify:full": "bun scripts/verify-setup.ts --verbose"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
