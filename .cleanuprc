@@ -23,6 +23,21 @@ Moved to docs/archive/:
 - FIXES-COMPLETED.md - Fix history
 
 ## Regular Cleanup Commands
+
+### NPM Scripts (Recommended)
+```bash
+# Full maintenance cleanup (runs all below)
+bun run clean:maintenance
+
+# Individual commands:
+bun run clean:cache        # Clear Bun cache
+bun run clean:build        # Remove build artifacts  
+bun run clean:db-temp      # Remove SQLite temp files
+bun run clean:processes    # Stop dev processes
+bun run clean:all          # Nuclear option (removes node_modules too)
+```
+
+### Manual Commands (if needed)
 ```bash
 # Remove node_modules bloat
 bun pm cache clean
