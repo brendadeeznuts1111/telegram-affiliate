@@ -13,7 +13,7 @@ account_id = "80693377f3abb78e00820aa69a415ce4" # Using Nolarose account (change
 [[d1_databases]]
 binding = "DB"
 database_name = "affiliate-system"
-database_id = "" # Will be filled after creating D1 database
+database_id = "e6cc2427-f81b-4849-bcba-acacb3aedc70"
 
 # KV namespace for affiliate tracking
 [[kv_namespaces]]
