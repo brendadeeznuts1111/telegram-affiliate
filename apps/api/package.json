@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@affiliate/schemas": "workspace:*",
-    "hono": "^4.0.0",
+    "hono": "^4.9.9",
     "zod": "^3.22.4"
   }
 }
