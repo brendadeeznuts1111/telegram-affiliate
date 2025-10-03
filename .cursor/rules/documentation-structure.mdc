@@ -61,9 +61,36 @@ Place outdated or superseded documentation here:
 
 **Examples:** `BOT-SETUP.md`, `LEVEL-5-AFFILIATE-EMPIRE.md`
 
+### 📁 .github/
+Place GitHub-specific configuration and metadata here:
+- Issue templates
+- Pull request templates
+- GitHub Actions workflows
+- Repository metadata guides
+- Dependabot configuration
+
+**Examples:**
+```
+.github/
+├── ISSUE_TEMPLATE/
+│   ├── bug_report.md
+│   └── feature_request.md
+├── workflows/
+│   ├── ci.yml
+│   └── deploy.yml
+├── PULL_REQUEST_TEMPLATE.md
+├── DESCRIPTION.md           # Repository metadata guide
+├── REPOSITORY_TOPICS.md     # Topics for GitHub settings
+└── dependabot.yml
+```
+
+**Note:** GitHub-specific documentation goes in `.github/`, not `docs/`.
+
 ## Root Directory
 
-**Only [README.md](mdc:README.md) should exist in the project root.**
+**Only [README.md](mdc:README.md) and LICENSE should exist in the project root.**
+
+All other documentation files should be organized in their appropriate `docs/` subdirectory or `.github/` directory.
 
 ## Linking Between Documents
 

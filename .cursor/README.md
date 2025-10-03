@@ -1,19 +1,20 @@
 # Cursor Rules for Telegram Affiliate Bot
 
-This directory contains **6 comprehensive Cursor Rules** (28.8KB total) that guide AI-assisted development for this project.
+This directory contains **9 comprehensive Cursor Rules** (60+ KB total) that guide AI-assisted development for this project.
 
 ## 📋 Available Rules
 
-### 1. **documentation-structure.mdc** (2.5KB)
+### 1. **documentation-structure.mdc** (3.5KB) ⭐ UPDATED
 **Applies:** Always  
 **Purpose:** Guidelines for organizing documentation files
 
 - 📁 Where to place different types of documentation
 - 🔗 How to link between docs correctly
-- ✅ Keeps project root clean (only README.md)
-- 📂 Defines 6 documentation categories
+- ✅ Keeps project root clean (only README.md & LICENSE)
+- 📂 Defines 7 documentation categories (including .github/)
+- 🆕 GitHub-specific file organization
 
-### 2. **project-structure.mdc** (3.9KB)
+### 2. **project-structure.mdc** (5.2KB) ⭐ UPDATED
 **Applies:** Always  
 **Purpose:** Monorepo organization and file placement
 
@@ -22,6 +23,7 @@ This directory contains **6 comprehensive Cursor Rules** (28.8KB total) that gui
 - 🎯 Where to add new features (bot/api/dashboard)
 - 📝 File naming conventions
 - 🔧 Configuration file locations
+- 🆕 Root directory files explanation (what MUST stay in root)
 
 ### 3. **bun-first.mdc** (4.3KB)
 **Applies:** Always  
@@ -67,15 +69,53 @@ This directory contains **6 comprehensive Cursor Rules** (28.8KB total) that gui
 - 🏥 Health checks and monitoring
 - 📋 Pre-deployment checklist
 
+### 7. **github-optimization.mdc** (12.5KB) 🆕 NEW
+**Applies:** Always  
+**Purpose:** GitHub repository optimization for discoverability
+
+- 🎨 README professional structure with badges
+- 📊 .gitattributes for language statistics
+- 🏷️ Repository topics and metadata
+- 📈 SEO optimization
+- 🖼️ Social preview guidelines
+- ⭐ Star graph optimization
+- 📝 Example excellent READMEs
+
+### 8. **package-metadata.mdc** (11.8KB) 🆕 NEW
+**Applies:** Always  
+**Purpose:** package.json metadata and organization standards
+
+- 📦 Required metadata fields (description, keywords, repository)
+- 🏗️ Scripts organization with consistent prefixes
+- 📚 Dependencies categorization
+- 🔧 Workspace configuration for monorepos
+- ✅ Publishing configuration
+- 📋 Validation checklist
+
+### 9. **repository-hygiene.mdc** (10.2KB) 🆕 NEW
+**Applies:** Always  
+**Purpose:** Repository cleanliness and what NOT to move/delete
+
+- ⚠️ Files that MUST stay in root (config files)
+- ✅ Files you CAN move (docs, GitHub files)
+- 🚫 Files to gitignore (never commit)
+- 🧹 Good cleanup vs excessive cleanup
+- 📋 Cleanup best practices
+- 🎯 Why 25-30 root files is NORMAL for monorepos
+- 💡 Use .gitattributes instead of moving config files
+
 ## 🎯 How Rules Are Applied
 
-### Always Applied (4 rules)
+### Always Applied (8 rules)
 These rules are **automatically included** in every AI conversation:
-- `documentation-structure.mdc`
-- `project-structure.mdc`
+- `documentation-structure.mdc` ⭐ UPDATED
+- `project-structure.mdc` ⭐ UPDATED
 - `bun-first.mdc`
 - `code-standards.mdc`
 - `deployment.mdc`
+- `github-optimization.mdc` 🆕 NEW
+- `package-metadata.mdc` 🆕 NEW
+- `repository-hygiene.mdc` 🆕 NEW
 
 ### Context-Specific (1 rule)
 This rule applies **only when editing specific file types**:
@@ -86,12 +126,13 @@ No manual rules currently defined.
 
 ## 📊 Coverage Summary
 
-| Category | Rules | Total Size |
-|----------|-------|------------|
-| **Documentation** | 2 | 6.5KB |
-| **Code Quality** | 2 | 12.1KB |
-| **Project Setup** | 2 | 10.2KB |
-| **Total** | **6** | **28.8KB** |
+| Category | Rules | Total Size | Status |
+|----------|-------|------------|--------|
+| **Documentation** | 3 | 19.8KB | 2 updated, 1 new |
+| **Code Quality** | 2 | 12.1KB | - |
+| **Project Setup** | 2 | 16.0KB | 1 updated, 1 new |
+| **GitHub & Metadata** | 2 | 24.3KB | 2 new |
+| **Total** | **9** | **60.4KB** | 🚀 Enhanced! |
 
 ## 🔧 Adding New Rules
 
@@ -119,17 +160,28 @@ To create a new rule:
 ✅ **Production Ready** - Cloudflare Workers best practices  
 ✅ **Security First** - Path validation and token generation  
 ✅ **Fast Onboarding** - New developers understand structure quickly  
+✅ **GitHub Optimized** - Professional presentation and discoverability  
+✅ **Repository Hygiene** - Avoid breaking changes during cleanup  
+✅ **Package Standards** - Comprehensive metadata for all projects  
 
 ## 🎓 Learning Path
 
 Recommended reading order for new developers:
 
+### Phase 1: Project Understanding (Start Here)
 1. **project-structure.mdc** - Understand the codebase layout
-2. **bun-first.mdc** - Learn the runtime and tools
-3. **code-standards.mdc** - Follow development practices
-4. **deployment.mdc** - Deploy to production
-5. **documentation-structure.mdc** - Contribute documentation
-6. **markdown-links.mdc** - Write docs correctly
+2. **repository-hygiene.mdc** - Learn what NOT to move/delete
+3. **documentation-structure.mdc** - Where docs are organized
+
+### Phase 2: Development Standards
+4. **bun-first.mdc** - Learn the runtime and tools
+5. **code-standards.mdc** - Follow development practices
+6. **package-metadata.mdc** - Package.json structure
+
+### Phase 3: Professional Polish
+7. **github-optimization.mdc** - Repository presentation
+8. **markdown-links.mdc** - Write docs correctly
+9. **deployment.mdc** - Deploy to production
 
 ## 📖 Related Documentation
 
@@ -152,7 +204,34 @@ cursor .cursor/rules/code-standards.mdc
 
 ---
 
-**Generated:** October 3, 2025  
-**Total Rules:** 6 (28.8KB)  
+**Last Updated:** October 3, 2025  
+**Total Rules:** 9 (60.4KB) - 50% larger!  
+**Status:** ✅ Enhanced with GitHub optimization & repository hygiene  
 **Project:** Telegram Affiliate Bot
+
+## 🚀 What's New (October 3, 2025)
+
+### 🆕 New Rules (3)
+- **github-optimization.mdc** - Professional README, .gitattributes, SEO
+- **package-metadata.mdc** - Comprehensive package.json standards
+- **repository-hygiene.mdc** - What NOT to move/delete, cleanup best practices
+
+### ⭐ Updated Rules (2)
+- **documentation-structure.mdc** - Added .github/ directory organization
+- **project-structure.mdc** - Added root directory files explanation
+
+### 📈 Impact
+- **Before:** 6 rules, 28.8KB - Basic project structure
+- **After:** 9 rules, 60.4KB - Complete professional development guide
+- **Growth:** +50% content, +3 critical topics
+
+### 🎯 New Capabilities
+- ✅ GitHub repository optimization for discoverability
+- ✅ Professional README structure with badges and TOC
+- ✅ Package.json metadata standards
+- ✅ Repository cleanup guidelines (what NOT to move!)
+- ✅ SEO and social preview optimization
+- ✅ .gitattributes for cleaner GitHub language stats
+
+**These rules now cover every aspect of professional TypeScript monorepo development!**
 

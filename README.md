@@ -36,7 +36,7 @@ Enterprise-grade Telegram affiliate marketing platform with multi-level commissi
 
 ## 🎯 Cursor AI Enhanced
 
-This project uses **6 comprehensive Cursor rules** (28.8KB) for consistent, AI-assisted development:
+This project uses **9 comprehensive Cursor rules** (60+ KB) for consistent, AI-assisted development:
 
 - 📚 **Documentation Structure** - Organized docs with linking standards
 - ⚡ **Bun-First Development** - Native APIs over Node.js packages  
@@ -44,6 +44,9 @@ This project uses **6 comprehensive Cursor rules** (28.8KB) for consistent, AI-a
 - ☁️ **Cloudflare Workers Guide** - D1, KV, and Workers best practices
 - 🔧 **Repository Pattern** - Clean data access layer architecture
 - 🚀 **Deployment Procedures** - Automated CI/CD workflows
+- 🎨 **GitHub Optimization** - Professional presentation & discoverability
+- 📦 **Package Metadata** - Comprehensive package.json standards
+- 🧹 **Repository Hygiene** - What NOT to move/delete during cleanup
 
 **→** See [`.cursor/README.md`](./.cursor/README.md) for complete AI development guide.
 

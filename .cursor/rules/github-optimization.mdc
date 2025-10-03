@@ -1,0 +1,315 @@
+---
+alwaysApply: true
+description: GitHub repository optimization standards for better discoverability and professional presentation
+---
+
+# GitHub Repository Optimization
+
+## .gitattributes Configuration
+
+Always include a `.gitattributes` file to optimize GitHub's language detection and file handling:
+
+```gitattributes
+# Linguist overrides for GitHub language detection
+*.md linguist-detectable=true
+*.md linguist-documentation=false
+
+# Mark vendor/generated directories
+.cursor/** linguist-documentation
+node_modules/** linguist-vendored
+bun.lock linguist-generated=true
+
+# Mark test/config files appropriately  
+*.config.ts linguist-language=TypeScript
+*.config.js linguist-language=JavaScript
+test/** linguist-detectable=false
+e2e/** linguist-detectable=false
+
+# Ensure proper language detection
+apps/**/src/**/*.ts linguist-detectable=true
+apps/**/src/**/*.vue linguist-detectable=true
+src/**/*.ts linguist-detectable=true
+packages/**/*.ts linguist-detectable=true
+```
+
+**Benefits:**
+- Accurate language statistics in GitHub
+- Hides test/config noise from language bar
+- Marks generated files appropriately
+- Better project presentation
+
+## README.md Professional Structure
+
+### Header Section
+
+Always use centered header with comprehensive badges:
+
+```markdown
+# 🎯 Project Name
+
+<div align="center">
+
+Clear, concise description of what the project does.
+
+[![Bun](https://img.shields.io/badge/Bun-1.0+-000000?logo=bun&logoColor=white)](https://bun.sh)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+[Features](#features) • [Quick Start](#quick-start) • [Docs](#documentation)
+
+</div>
+```
+
+**Badge Best Practices:**
+- Include `&logoColor=white` for better contrast
+- Link to official technology pages
+- Show version requirements (e.g., `1.0+`)
+- Group related badges on same line
+- Add quick navigation links below badges
+
+### Required Sections
+
+1. **Table of Contents** - For READMEs over 200 lines
+2. **Features** - Key capabilities with emojis
+3. **Tech Stack** - Technologies used
+4. **Quick Start** - Installation & basic usage
+5. **Project Structure** - Directory tree
+6. **Documentation** - Links to detailed guides
+7. **Architecture** - High-level design overview
+8. **Contributing** - Step-by-step guide with code examples
+9. **License** - License information
+10. **Acknowledgments** - Credits to tools/frameworks
+
+### Project Stats Section
+
+Include metrics to showcase the project:
+
+```markdown
+## 📈 Project Stats
+
+| Category | Details |
+|----------|---------|
+| **Lines of Code** | ~15,000+ TypeScript/Vue |
+| **Test Coverage** | Vitest + Playwright E2E |
+| **Documentation** | 28.8KB Cursor Rules |
+| **Performance** | <100ms edge latency |
+| **Architecture** | Event-driven monorepo |
+```
+
+### Call-to-Action Footer
+
+End with centered CTA:
+
+```markdown
+<div align="center">
+
+**Built with ❤️ using [Tech Stack]**
+
+⭐ **Star this repo if you find it useful!** ⭐
+
+</div>
+```
+
+## Repository Topics
+
+### Required Topics File
+
+Create `.github/REPOSITORY_TOPICS.md` with recommended tags:
+
+```markdown
+# Repository Topics
+
+## Recommended Topics (10-15)
+
+### Primary Technologies
+- `bun` / `typescript` / `vue3`
+- `cloudflare-workers` / `hono` / `grammy`
+
+### Purpose & Domain
+- `affiliate-marketing` / `commission-tracking`
+- `multi-level-marketing` / `referral-system`
+
+### Architecture
+- `monorepo` / `turborepo` / `event-driven`
+
+### Development
+- `ai-enhanced` / `cursor-rules`
+```
+
+**How to add topics:**
+1. Go to repository on GitHub
+2. Click ⚙️ gear next to "About"
+3. Add topics (10-15 recommended)
+4. Include website/description
+
+## .github/ Directory Structure
+
+Organize GitHub-specific files:
+
+```
+.github/
+├── ISSUE_TEMPLATE/
+│   ├── bug_report.md
+│   └── feature_request.md
+├── workflows/
+│   ├── ci.yml
+│   └── deploy.yml
+├── PULL_REQUEST_TEMPLATE.md
+├── DESCRIPTION.md           # Repository metadata guide
+├── REPOSITORY_TOPICS.md     # Topics for GitHub settings
+└── dependabot.yml
+```
+
+**Purpose of each:**
+- `ISSUE_TEMPLATE/` - Structured bug/feature reports
+- `workflows/` - GitHub Actions CI/CD
+- `PULL_REQUEST_TEMPLATE.md` - PR checklist
+- `DESCRIPTION.md` - SEO & metadata guidance
+- `REPOSITORY_TOPICS.md` - Topics to add on GitHub
+- `dependabot.yml` - Automated dependency updates
+
+## Repository Description
+
+Short, compelling description (max 350 chars for GitHub About):
+
+**Format:** `[What it does] · [Key tech] · [Unique feature]`
+
+**Example:** `Enterprise Telegram affiliate bot with multi-level tracking · Bun + TypeScript + Cloudflare Workers · AI-enhanced development`
+
+## Social Preview Image
+
+**Recommended size:** 1280x640px (2:1 ratio)
+
+**Should include:**
+- Project name and logo
+- 3-5 key features
+- Tech stack badges
+- Unique selling point ("AI-Enhanced", "Edge-First", etc.)
+
+**Tools:**
+- [Canva](https://www.canva.com/) - Easy design
+- [Figma](https://www.figma.com/) - Professional design
+- GitHub auto-generates if not provided
+
+## SEO Optimization
+
+### Description Keywords
+
+Include relevant terms naturally:
+- Technology names (TypeScript, Bun, Cloudflare)
+- Use case (affiliate marketing, commission tracking)
+- Architecture (monorepo, edge computing, serverless)
+- Developer experience (AI-enhanced, Cursor rules)
+
+### Discoverability Checklist
+
+- [ ] Descriptive repository name
+- [ ] Compelling About description
+- [ ] 10-15 relevant topics
+- [ ] Professional README with badges
+- [ ] Table of contents in README
+- [ ] Social preview image (optional but recommended)
+- [ ] License file present
+- [ ] Active Issues/Discussions enabled
+- [ ] Recent commit activity
+- [ ] Clear contributing guidelines
+
+## Repository Settings
+
+### General Settings
+
+- ✅ **Features:** Enable Issues, Projects, Discussions
+- ✅ **Wikis:** Disable (use `docs/` instead for consistency)
+- ✅ **Preserve:** Enable for critical projects
+
+### Security
+
+- ✅ **Dependabot:** Enable alerts & security updates
+- ✅ **Code scanning:** Enable CodeQL
+- ✅ **Secret scanning:** Enable (or use Gitleaks)
+
+### Branches
+
+- ✅ **Default branch:** `main`
+- ✅ **Protection:** Require PR reviews for main
+- ✅ **Status checks:** Require CI to pass
+- ✅ **Auto-delete:** Delete head branches after merge
+
+## GitHub Actions Best Practices
+
+Keep workflows organized:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun test
+```
+
+**Workflow Standards:**
+- Use latest action versions
+- Cache dependencies when possible
+- Run tests in parallel
+- Fail fast on errors
+- Use matrix strategy for multi-platform
+
+## Avoid Common Mistakes
+
+❌ **DON'T:**
+- Use generic repository description
+- Forget to add topics
+- Leave default GitHub templates
+- Have stale/outdated README
+- Ignore language statistics (fix with `.gitattributes`)
+- Use absolute paths in markdown links
+- Forget license file
+
+✅ **DO:**
+- Write compelling About description
+- Add 10-15 relevant topics
+- Customize issue/PR templates
+- Keep README up-to-date
+- Optimize language bar with `.gitattributes`
+- Use relative markdown links
+- Include clear license
+
+## Examples of Excellent READMEs
+
+Study these for inspiration:
+- [Bun](https://github.com/oven-sh/bun)
+- [Hono](https://github.com/honojs/hono)
+- [Turborepo](https://github.com/vercel/turbo)
+- [Vite](https://github.com/vitejs/vite)
+- [Astro](https://github.com/withastro/astro)
+
+**Common patterns:**
+- Centered header with logo
+- Multiple rows of badges
+- Quick navigation links
+- Comprehensive table of contents
+- Visual project structure
+- Clear contributing guide
+- Professional acknowledgments
+
+## Measuring Success
+
+Track these metrics:
+- ⭐ **Stars:** Growth over time
+- 👁️ **Traffic:** Views and unique visitors
+- 🍴 **Forks:** Community interest
+- 📝 **Issues/PRs:** Community engagement
+- 🔍 **Search ranking:** For relevant keywords
+
+Use GitHub Insights to monitor and optimize!

@@ -1,0 +1,425 @@
+---
+alwaysApply: true
+description: Standards for repository cleanliness and what files should/shouldn't be moved or deleted
+---
+
+# Repository Hygiene & Cleanup Standards
+
+## Critical Rule: Don't Break Tooling
+
+**⚠️ WARNING:** Many configuration files MUST stay in the repository root. Moving them breaks tooling and CI/CD pipelines.
+
+## Files That MUST Stay in Root
+
+### Configuration Files (DO NOT MOVE)
+
+These files are required by tools and must stay in repository root:
+
+```
+✅ KEEP IN ROOT:
+├── package.json           # Bun/npm reads from root
+├── tsconfig.json          # TypeScript compiler
+├── bunfig.toml           # Bun runtime config
+├── turbo.json            # TurboRepo config
+├── playwright.config.ts  # Playwright expects root
+├── vitest.config.ts      # Vitest expects root
+├── .gitignore            # Git expects root
+├── .gitattributes        # Git expects root
+├── .npmrc                # npm/bun config
+├── .gitleaks.toml        # Gitleaks expects root
+└── env.example           # Convention for env templates
+```
+
+**Why they can't move:**
+- Tools look for them in repository root by default
+- Moving requires updating:
+  - All import paths
+  - CI/CD configurations
+  - Local developer setups
+  - Docker build contexts
+  - IDE configurations
+- Not worth the complexity vs. minimal aesthetic gain
+
+### Docker Files (Keep in Root)
+
+Docker expects these at repository root:
+
+```
+✅ KEEP IN ROOT:
+├── Dockerfile
+├── docker-compose.yml
+├── docker-compose.dev.yml
+└── .dockerignore
+```
+
+**Why:** Docker CLI and most CI/CD platforms expect these in root.
+
+### Documentation (One Exception)
+
+```
+✅ README.md - MUST stay in root (GitHub displays it)
+✅ LICENSE - Should stay in root (GitHub detects it)
+❌ Other .md files - Move to docs/ subdirectories
+```
+
+### Lock Files (Generated, Keep)
+
+```
+✅ KEEP IN ROOT (Don't delete):
+├── bun.lock              # Bun dependency lock
+├── package-lock.json     # npm dependency lock (if using npm)
+└── yarn.lock             # Yarn dependency lock (if using yarn)
+```
+
+**Never delete lock files!** They ensure reproducible builds.
+
+## Files You CAN Move
+
+### Migrate to docs/
+
+Move these from root to appropriate `docs/` subdirectory:
+
+```markdown
+❌ Root clutter:
+- ARCHITECTURE.md
+- DEPLOYMENT.md
+- CONTRIBUTING.md (optional, can stay in root)
+- API-DOCS.md
+- CHANGELOG.md (optional, can stay in root)
+
+✅ Organized in docs/:
+- docs/architecture/ARCHITECTURE.md
+- docs/deployment/DEPLOYMENT.md
+- docs/guides/CONTRIBUTING.md
+- docs/api/API-DOCS.md
+- docs/CHANGELOG.md
+```
+
+### Migrate to .github/
+
+GitHub-specific files belong in `.github/`:
+
+```
+✅ MOVE TO .github/:
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── workflows/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── DESCRIPTION.md
+│   ├── REPOSITORY_TOPICS.md
+│   └── dependabot.yml
+```
+
+## Files to Gitignore (Never Commit)
+
+### Temporary Build Artifacts
+
+```gitignore
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+.output/
+*.tsbuildinfo
+
+# Bundler caches
+.vite/
+.turbo/
+.cache/
+.parcel-cache/
+.wrangler/
+
+# Test outputs
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+```
+
+### Database Files
+
+```gitignore
+# SQLite databases (use migrations instead)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Database dumps
+*.sql.gz
+*.dump
+```
+
+**Exception:** Sample/seed databases for testing can be committed if small.
+
+### Environment Files
+
+```gitignore
+# Environment variables (NEVER commit secrets!)
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Keep template
+!env.example
+```
+
+### IDE/Editor Files
+
+```gitignore
+# IDE settings (personal preferences)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+```
+
+**Exception:** `.vscode/settings.json` with project-specific settings can be committed.
+
+## Clean vs. Excessive Cleanup
+
+### ✅ Good Cleanup
+
+Improves organization without breaking functionality:
+
+```bash
+# Move docs to structured directories
+mv ARCHITECTURE.md docs/architecture/
+mv DEPLOYMENT.md docs/deployment/
+
+# Remove temp files
+rm -f *.log *.tmp
+rm -rf .cache/
+
+# Clean generated files
+rm -rf dist/ apps/*/dist/
+```
+
+### ❌ Excessive Cleanup
+
+Breaks tooling or removes necessary files:
+
+```bash
+# ❌ DON'T DO THIS:
+mkdir config/
+mv *.config.ts config/        # Breaks Playwright, Vitest, etc.
+mv tsconfig.json config/      # TypeScript won't find it
+mv package.json build/        # Bun won't find it
+
+# ❌ DON'T DO THIS:
+rm bun.lock                   # Breaks reproducible builds
+rm package-lock.json          # Breaks reproducible builds
+
+# ❌ DON'T DO THIS:
+mv .gitignore .github/        # Git won't find it
+mv .env.example config/       # Convention expects root
+```
+
+## Cleaning Best Practices
+
+### 1. Use Scripts in package.json
+
+```json
+{
+  "scripts": {
+    "clean:cache": "bun pm cache clean",
+    "clean:build": "rm -rf apps/*/dist apps/*/.wrangler",
+    "clean:db-temp": "rm -f data/*.db-shm data/*.db-wal",
+    "clean:processes": "pkill -f 'bun.*dev' || true",
+    "clean:all": "bun run clean:cache && bun run clean:build"
+  }
+}
+```
+
+**Benefits:**
+- Documented cleanup procedures
+- Safe, tested commands
+- Consistent across team
+- Prevents accidents
+
+### 2. Automate Cleanup in CI
+
+```yaml
+# .github/workflows/cleanup.yml
+name: Cleanup
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly at 2am Sunday
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun run clean:cache
+      - run: bun run clean:build
+```
+
+### 3. Document What Can Be Cleaned
+
+Create `docs/guides/CLEANUP-PROCEDURES.md`:
+
+```markdown
+# Cleanup Procedures
+
+## Safe to Remove
+- `data/*.db-shm` - SQLite temp files (when DB idle)
+- `data/*.db-wal` - SQLite WAL files (when DB idle)
+- `apps/*/dist/` - Build artifacts
+- `node_modules/` - Can reinstall with `bun install`
+
+## NEVER Remove
+- `bun.lock` - Ensures reproducible builds
+- `*.config.ts` in root - Required by tools
+- `.gitignore` - Git configuration
+- `package.json` - Project metadata
+```
+
+## Repository Root File Count
+
+**Typical monorepo root has 20-30 files. This is NORMAL!**
+
+### Expected Root Contents
+
+```
+Repository Root (25-30 items is standard)
+├── Directories (8-10)
+│   ├── .github/          # GitHub-specific
+│   ├── .cursor/          # Cursor AI rules
+│   ├── apps/             # Monorepo apps
+│   ├── packages/         # Shared packages
+│   ├── src/              # Bot source
+│   ├── scripts/          # Utility scripts
+│   ├── docs/             # Documentation
+│   ├── e2e/              # E2E tests
+│   ├── test/             # Unit tests
+│   └── node_modules/     # Dependencies (gitignored)
+│
+├── Config Files (10-15)
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── bunfig.toml
+│   ├── turbo.json
+│   ├── playwright.config.ts
+│   ├── vitest.config.ts
+│   ├── .gitignore
+│   ├── .gitattributes
+│   ├── .npmrc
+│   └── .gitleaks.toml
+│
+├── Docker Files (3-4)
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── docker-compose.dev.yml
+│
+└── Documentation (2-3)
+    ├── README.md
+    ├── LICENSE
+    └── env.example
+```
+
+**This is industry standard!** Compare to:
+- [Turborepo](https://github.com/vercel/turbo) - 24 root items
+- [Nx](https://github.com/nrwl/nx) - 27 root items
+- [Bun](https://github.com/oven-sh/bun) - 26 root items
+
+## Use .gitattributes for Visual Cleanup
+
+Instead of moving files, use `.gitattributes` to improve GitHub's display:
+
+```gitattributes
+# Mark as documentation (folds in language stats)
+.cursor/** linguist-documentation
+docs/** linguist-documentation
+
+# Mark as vendored (hides from search)
+node_modules/** linguist-vendored
+
+# Mark as generated (GitHub knows to ignore)
+bun.lock linguist-generated=true
+*.lock linguist-generated=true
+
+# Exclude from stats
+test/** linguist-detectable=false
+e2e/** linguist-detectable=false
+*.config.ts linguist-detectable=false
+*.config.js linguist-detectable=false
+```
+
+**Result:** GitHub shows cleaner language statistics without breaking tooling!
+
+## Cleanup Checklist
+
+Before "cleaning" repository:
+
+- [ ] **Check if file is required by tooling** (config files)
+- [ ] **Verify file isn't tracked in git** (temp files)
+- [ ] **Test after moving** (ensure nothing breaks)
+- [ ] **Update documentation** (if you move something)
+- [ ] **Create cleanup script** (make it repeatable)
+- [ ] **Use .gitattributes** (instead of moving config files)
+- [ ] **Ask yourself:** "Will this break CI/CD?"
+- [ ] **Ask yourself:** "Will this break other developers' setups?"
+
+## When Repository Looks "Messy"
+
+**Don't move config files!** Instead:
+
+1. ✅ Use `.gitattributes` for GitHub display
+2. ✅ Add comprehensive README badges
+3. ✅ Organize docs into `docs/` subdirectories
+4. ✅ Add repository topics on GitHub
+5. ✅ Create `.github/DESCRIPTION.md` guide
+6. ✅ Remove actual clutter (temp files, caches)
+7. ✅ Update .gitignore to prevent future clutter
+
+**The "mess" is usually standard monorepo structure!**
+
+## Red Flags (Don't Do This)
+
+🚩 Moving config files to subdirectories  
+🚩 Deleting lock files to "clean up"  
+🚩 Removing "unnecessary" root files  
+🚩 Consolidating configs into one file  
+🚩 Using absolute paths after moving files  
+🚩 Forgetting to test after reorganization  
+🚩 Not updating CI/CD after changes  
+🚩 Breaking other developers' local setups  
+
+## Green Lights (Do This Instead)
+
+✅ Remove temp files (`.log`, `.tmp`)  
+✅ Clean build artifacts (`dist/`, `.cache/`)  
+✅ Organize docs in `docs/` structure  
+✅ Use `.gitattributes` for GitHub display  
+✅ Add `.gitignore` entries for clutter  
+✅ Create cleanup scripts in package.json  
+✅ Document cleanup procedures  
+✅ Test everything still works after cleanup  
+
+## Summary
+
+**Root file count is NOT a problem.** 
+
+Modern TypeScript monorepos have 25-30 files in root by design. Tools expect config files in specific locations. Don't break working setups for aesthetics!
+
+**Focus on:**
+- Removing actual clutter (temps, caches, logs)
+- Organizing documentation in `docs/`
+- Using `.gitattributes` for GitHub display
+- Creating documented cleanup procedures
+
+**Avoid:**
+- Moving config files from root
+- Deleting lock files
+- Breaking tooling for aesthetics
+- Over-organizing at the expense of functionality

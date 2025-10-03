@@ -1,0 +1,518 @@
+---
+alwaysApply: true
+description: Standards for package.json metadata, scripts organization, and npm/bun package configuration
+---
+
+# Package.json Metadata Standards
+
+## Required Metadata Fields
+
+Every `package.json` must include comprehensive metadata for discoverability and professionalism:
+
+```json
+{
+  "name": "project-name",
+  "version": "1.0.0",
+  "description": "Clear, concise description of what the package does",
+  "keywords": [
+    "primary-tech",
+    "use-case",
+    "framework",
+    "platform"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/repo.git"
+  },
+  "homepage": "https://github.com/username/repo#readme",
+  "bugs": {
+    "url": "https://github.com/username/repo/issues"
+  },
+  "author": "Your Name or GitHub Username",
+  "license": "MIT",
+  "private": true
+}
+```
+
+## Metadata Field Guidelines
+
+### Description
+
+**Format:** `[Purpose] with [key features]`
+
+**Examples:**
+- ✅ "Enterprise Telegram affiliate bot with multi-level commission tracking and real-time analytics"
+- ✅ "Ultra-fast web framework for edge computing with zero dependencies"
+- ❌ "My cool project" (too vague)
+- ❌ "Bot" (not descriptive)
+
+**Rules:**
+- Keep under 200 characters
+- Include key technologies or features
+- Be specific about purpose
+- Avoid marketing fluff
+
+### Keywords
+
+**Best practices:**
+- Include 10-15 relevant keywords
+- Order by importance (most important first)
+- Include:
+  - Primary technologies (`bun`, `typescript`, `vue3`)
+  - Use case (`affiliate-marketing`, `commission-tracking`)
+  - Architecture (`monorepo`, `edge-computing`)
+  - Platform (`cloudflare-workers`, `telegram-bot`)
+
+```json
+"keywords": [
+  "telegram-bot",        // Primary tech
+  "affiliate-marketing", // Use case
+  "cloudflare-workers",  // Platform
+  "bun",                 // Runtime
+  "typescript",          // Language
+  "vue3",                // Framework
+  "monorepo",            // Architecture
+  "commission-tracking", // Feature
+  "grammy",              // Library
+  "hono",                // Library
+  "multi-level-marketing",
+  "referral-system",
+  "edge-computing",
+  "d1-database",
+  "turborepo"
+]
+```
+
+### Repository
+
+Always include full repository object:
+
+```json
+"repository": {
+  "type": "git",
+  "url": "https://github.com/username/repo.git"
+}
+```
+
+**Benefits:**
+- npm shows "Repository" link
+- GitHub auto-detects package
+- Better discoverability
+- Professional appearance
+
+### Homepage & Bugs
+
+Link to README and issue tracker:
+
+```json
+"homepage": "https://github.com/username/repo#readme",
+"bugs": {
+  "url": "https://github.com/username/repo/issues"
+}
+```
+
+**Alternative:**
+```json
+"homepage": "https://yourproject.com",  // If you have a website
+"bugs": {
+  "url": "https://github.com/username/repo/issues",
+  "email": "support@yourproject.com"   // Optional
+}
+```
+
+### Author
+
+Options:
+
+```json
+// Simple string
+"author": "Your Name"
+
+// With email
+"author": "Your Name <your.email@example.com>"
+
+// Full object
+"author": {
+  "name": "Your Name",
+  "email": "your.email@example.com",
+  "url": "https://yourwebsite.com"
+}
+
+// Multiple authors
+"contributors": [
+  "Person One <one@example.com>",
+  "Person Two <two@example.com>"
+]
+```
+
+### License
+
+**Common licenses:**
+- `"MIT"` - Most permissive, recommended for open source
+- `"ISC"` - Similar to MIT, simpler text
+- `"Apache-2.0"` - Patent protection
+- `"UNLICENSED"` - Private/proprietary
+- `"SEE LICENSE IN LICENSE.txt"` - Custom license
+
+**Always include LICENSE file in repository root!**
+
+## Scripts Organization
+
+### Naming Conventions
+
+Use clear, consistent prefixes:
+
+```json
+"scripts": {
+  // Development
+  "dev": "...",
+  "dev:bot": "...",
+  "dev:api": "...",
+  "dev:ui": "...",
+  
+  // Building
+  "build": "...",
+  "build:api": "...",
+  "build:ui": "...",
+  
+  // Testing
+  "test": "...",
+  "test:unit": "...",
+  "test:e2e": "...",
+  "test:coverage": "...",
+  
+  // Deployment
+  "deploy": "...",
+  "deploy:staging": "...",
+  "deploy:prod": "...",
+  
+  // Quality checks
+  "lint": "...",
+  "format": "...",
+  "type-check": "...",
+  
+  // Cleanup
+  "clean": "...",
+  "clean:cache": "...",
+  "clean:build": "...",
+  
+  // Database
+  "db:create": "...",
+  "db:migrate": "...",
+  "db:seed": "..."
+}
+```
+
+### Script Prefixes
+
+| Prefix | Purpose | Examples |
+|--------|---------|----------|
+| `dev:` | Development servers | `dev:bot`, `dev:api` |
+| `build:` | Build processes | `build:api`, `build:ui` |
+| `test:` | Testing | `test:unit`, `test:e2e` |
+| `deploy:` | Deployment | `deploy:staging`, `deploy:prod` |
+| `clean:` | Cleanup tasks | `clean:cache`, `clean:build` |
+| `db:` | Database operations | `db:migrate`, `db:seed` |
+| `docker:` | Docker operations | `docker:up`, `docker:logs` |
+| `lint:` | Linting | `lint:js`, `lint:css` |
+
+### Script Best Practices
+
+✅ **DO:**
+```json
+"scripts": {
+  "dev": "bun run dev:bot",
+  "dev:bot": "cd src && bun --watch index.ts",
+  "test": "bun test",
+  "test:watch": "bun test --watch",
+  "build": "bun run build:api && bun run build:ui",
+  "deploy:prod": "bun run test && bun run build && bun run deploy"
+}
+```
+
+❌ **DON'T:**
+```json
+"scripts": {
+  "start-bot": "...",        // Use dev:bot instead
+  "runTests": "...",          // Use test instead (camelCase not common)
+  "build_production": "...",  // Use deploy:prod instead
+  "cleanup": "rm -rf *"       // Dangerous! Be specific
+}
+```
+
+## Workspace Configuration (Monorepo)
+
+For monorepos using Bun workspaces:
+
+```json
+{
+  "name": "my-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter='*' dev",
+    "build": "bun run --filter='*' build",
+    "test": "bun run --filter='*' test"
+  }
+}
+```
+
+**Workspace patterns:**
+- `"apps/*"` - All subdirectories in apps/
+- `"packages/*"` - All subdirectories in packages/
+- `"libs/**"` - Nested directories
+
+## Dependencies Organization
+
+### Dependency Categories
+
+```json
+{
+  "dependencies": {
+    // Production runtime dependencies
+    "grammy": "^1.20.0",
+    "hono": "^3.11.0"
+  },
+  "devDependencies": {
+    // Development-only tools
+    "@types/bun": "latest",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0",
+    "playwright": "^1.40.0"
+  },
+  "peerDependencies": {
+    // Required by consumers (for libraries)
+    "typescript": ">=5.0.0"
+  },
+  "optionalDependencies": {
+    // Nice to have, won't break if missing
+    "sharp": "^0.33.0"
+  }
+}
+```
+
+### Version Constraints
+
+```json
+{
+  "dependencies": {
+    "exact-version": "1.2.3",      // ❌ Avoid (too strict)
+    "caret": "^1.2.3",             // ✅ Recommended (allows 1.x.x)
+    "tilde": "~1.2.3",             // ⚠️ Only patch updates (1.2.x)
+    "latest": "latest",            // ⚠️ Use sparingly (unstable)
+    "range": ">=1.2.0 <2.0.0",    // ⚠️ Verbose
+    "workspace": "workspace:*"     // ✅ For monorepo packages
+  }
+}
+```
+
+**Recommendations:**
+- Use `^` for most dependencies (semantic versioning)
+- Use `workspace:*` for internal packages in monorepos
+- Pin to exact versions only when necessary (security, stability)
+- Use `latest` only for types (`@types/bun`)
+
+## Engines Field
+
+Specify required runtime versions:
+
+```json
+{
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  }
+}
+```
+
+**Benefits:**
+- Prevents installation with wrong runtime
+- Documents minimum versions
+- CI/CD validation
+
+## Configuration Fields
+
+### Bun-Specific
+
+```json
+{
+  "bun": {
+    "install": {
+      "cache": true,
+      "lockfile": true
+    }
+  }
+}
+```
+
+### Type Definitions
+
+For published packages:
+
+```json
+{
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  }
+}
+```
+
+## Publishing Configuration
+
+For packages intended for npm/bun registry:
+
+```json
+{
+  "name": "@scope/package-name",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
+```
+
+## Monorepo Package.json Example
+
+```json
+{
+  "name": "telegram-affiliate-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enterprise Telegram affiliate bot with multi-level commission tracking",
+  "keywords": [
+    "telegram-bot",
+    "affiliate-marketing",
+    "cloudflare-workers",
+    "bun",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/telegram-affiliate.git"
+  },
+  "homepage": "https://github.com/username/telegram-affiliate#readme",
+  "bugs": {
+    "url": "https://github.com/username/telegram-affiliate/issues"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter='*' dev",
+    "build": "bun run --filter='*' build",
+    "test": "bun test",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
+    "type-check": "tsc --noEmit",
+    "deploy:prod": "bun run test && bun run build && bun run deploy"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.3.0",
+    "prettier": "^3.1.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
+```
+
+## Child Package Example (apps/api/package.json)
+
+```json
+{
+  "name": "api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun src/index.ts",
+    "build": "bun build src/index-worker.ts --outdir dist",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:prod": "wrangler deploy --env production"
+  },
+  "dependencies": {
+    "hono": "^3.11.0",
+    "@affiliate/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^3.20.0"
+  }
+}
+```
+
+## Validation Checklist
+
+Before committing package.json changes:
+
+- [ ] Description is clear and under 200 characters
+- [ ] 10-15 relevant keywords included
+- [ ] Repository URL is correct
+- [ ] Homepage links to README or website
+- [ ] Bugs URL points to issue tracker
+- [ ] Author field is filled
+- [ ] License matches LICENSE file
+- [ ] Scripts use consistent naming (prefix:action)
+- [ ] Dependencies use `^` for versions
+- [ ] Workspace packages use `workspace:*`
+- [ ] Engines field specifies minimum versions
+- [ ] No hardcoded secrets or tokens
+- [ ] JSON is valid (no trailing commas!)
+
+## Common Mistakes to Avoid
+
+❌ **DON'T:**
+```json
+{
+  "name": "my-app",           // Too generic
+  "description": "",          // Missing
+  "keywords": [],             // Empty
+  "author": "",               // Missing
+  "license": "UNLICENSED",   // For private only
+  "scripts": {
+    "start": "node .",        // Ambiguous
+    "cleanup": "rm -rf *"     // Dangerous!
+  }
+}
+```
+
+✅ **DO:**
+```json
+{
+  "name": "telegram-affiliate-bot",
+  "description": "Multi-level affiliate tracking bot for Telegram",
+  "keywords": ["telegram", "affiliate", "bot"],
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "dev:bot": "bun --watch src/index.ts",
+    "clean:cache": "bun pm cache clean"
+  }
+}
+```
+
+## Resources
+
+- [npm package.json docs](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)
+- [Bun package.json](https://bun.sh/docs/cli/install#package-json)
+- [Semantic Versioning](https://semver.org/)
+- [SPDX License List](https://spdx.org/licenses/)
