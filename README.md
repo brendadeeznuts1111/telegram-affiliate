@@ -36,7 +36,7 @@ Enterprise-grade Telegram affiliate marketing platform with multi-level commissi
 
 ## 🎯 Cursor AI Enhanced
 
-This project uses **9 comprehensive Cursor rules** (60+ KB) for consistent, AI-assisted development:
+This project uses **10 comprehensive Cursor rules** (68+ KB) for consistent, AI-assisted development:
 
 - 📚 **Documentation Structure** - Organized docs with linking standards
 - ⚡ **Bun-First Development** - Native APIs over Node.js packages  
@@ -47,6 +47,7 @@ This project uses **9 comprehensive Cursor rules** (60+ KB) for consistent, AI-a
 - 🎨 **GitHub Optimization** - Professional presentation & discoverability
 - 📦 **Package Metadata** - Comprehensive package.json standards
 - 🧹 **Repository Hygiene** - What NOT to move/delete during cleanup
+- 🌐 **Deployment URLs** - Never document URLs until deployed & verified
 
 **→** See [`.cursor/README.md`](./.cursor/README.md) for complete AI development guide.
 
@@ -126,6 +127,22 @@ bun run deploy:prod
 ```
 
 See **[CLOUDFLARE-SETUP.md](./docs/archive/CLOUDFLARE-SETUP.md)** for detailed deployment instructions.
+
+## 🌐 Deployment Status
+
+| Service | Status | URL | Notes |
+|---------|--------|-----|-------|
+| **Dashboard** | 🔄 Not Deployed | - | Run `bun run scripts/deploy-dashboard.ts` |
+| **API** | 🔄 Not Deployed | - | Deploy via GitHub Actions |
+| **Bot** | 🔄 Local Only | - | Polling mode for development |
+
+**To deploy:**
+1. Set up Cloudflare secrets in GitHub Actions
+2. Push to `main` branch (auto-deploys via CI/CD)
+3. Verify URLs with: `bun run scripts/verify-urls.ts`
+4. Update this table with live URLs
+
+**GitHub Actions:** Automatic deployments configured for dashboard and API. See [`.github/workflows/`](./.github/workflows/)
 
 ## 📁 Project Structure
 
