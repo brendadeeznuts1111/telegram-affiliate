@@ -24,7 +24,14 @@ Perfect for learning modern full-stack TypeScript development or building your o
 
 ## Website URL
 
-(Add your deployment URL here when ready)
+**Production (when deployed):** `https://telegram-affiliate-dashboard.pages.dev`
+
+**Note:** Dashboard needs to be deployed to Cloudflare Pages first:
+```bash
+bun run scripts/deploy-dashboard.ts
+```
+
+Until deployed, use GitHub repo URL: `https://github.com/brendadeeznuts1111/telegram-affiliate`
 
 ## Keywords/Topics
 
