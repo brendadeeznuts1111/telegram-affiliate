@@ -1,21 +1,51 @@
 # 🤖 Telegram Affiliate Bot
 
+<div align="center">
+
 Enterprise-grade Telegram affiliate marketing platform with multi-level commission tracking, real-time analytics, and comprehensive admin tools.
 
-[![Bun](https://img.shields.io/badge/Bun-1.0+-000000?logo=bun)](https://bun.sh)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare)](https://workers.cloudflare.com/)
-[![Vue 3](https://img.shields.io/badge/Vue-3.0-4FC08D?logo=vue.js)](https://vuejs.org/)
+[![Bun](https://img.shields.io/badge/Bun-1.0+-000000?logo=bun&logoColor=white)](https://bun.sh)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![Vue 3](https://img.shields.io/badge/Vue-3.0-4FC08D?logo=vue.js&logoColor=white)](https://vuejs.org/)
+
+[![Grammy](https://img.shields.io/badge/Grammy-Bot_Framework-4B9FE1?logo=telegram&logoColor=white)](https://grammy.dev/)
+[![Hono](https://img.shields.io/badge/Hono-Web_Framework-E36002?logo=hono&logoColor=white)](https://hono.dev/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Cursor Rules](https://img.shields.io/badge/Cursor_Rules-6_active-blueviolet)](https://cursor.sh)
+
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Architecture](#️-architecture)
+
+</div>
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Testing](#-testing)
+- [Documentation](#-documentation)
+- [Architecture](#️-architecture)
+- [Security](#-security)
+- [Performance](#-performance)
+
+---
 
 ## 🎯 Cursor AI Enhanced
 
-This project uses **6 comprehensive Cursor rules** (28.8KB) for consistent development:
-- 📚 Documentation structure & linking standards
-- ⚡ Bun-first development practices  
-- 🏗️ Code quality & architecture patterns
-- ☁️ Cloudflare Workers deployment guide
+This project uses **6 comprehensive Cursor rules** (28.8KB) for consistent, AI-assisted development:
 
-See [`.cursor/README.md`](./.cursor/README.md) for details.
+- 📚 **Documentation Structure** - Organized docs with linking standards
+- ⚡ **Bun-First Development** - Native APIs over Node.js packages  
+- 🏗️ **Code Quality Standards** - TypeScript strict mode, Zod validation
+- ☁️ **Cloudflare Workers Guide** - D1, KV, and Workers best practices
+- 🔧 **Repository Pattern** - Clean data access layer architecture
+- 🚀 **Deployment Procedures** - Automated CI/CD workflows
+
+**→** See [`.cursor/README.md`](./.cursor/README.md) for complete AI development guide.
 
 ## ✨ Features
 
@@ -259,26 +289,94 @@ bun run db:execute       # Run migrations
 - **Performance Budgets** - Lighthouse CI enforcement
 - **Edge Deployment** - <100ms global latency
 
+## 📈 Project Stats
+
+| Category | Details |
+|----------|---------|
+| **Lines of Code** | ~15,000+ TypeScript/Vue |
+| **Test Coverage** | Vitest + Playwright E2E |
+| **Documentation** | 28.8KB Cursor Rules + 6 structured guides |
+| **Performance** | <100ms edge latency (Cloudflare Workers) |
+| **Architecture** | Event-driven monorepo with TurboRepo |
+| **Database** | SQLite (local) / D1 (production) |
+
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+We welcome contributions! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Follow** the Cursor rules (auto-applied in AI chats)
+4. **Test** your changes
+   ```bash
+   bun run test
+   bun run type-check
+   ```
+5. **Commit** with conventional commits
+   ```bash
+   git commit -m "feat: add amazing feature"
+   ```
+6. **Push** and create a Pull Request
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+
+### Development Guidelines
+
+- ✅ Use **Bun native APIs** over Node.js packages
+- ✅ Follow **TypeScript strict mode** conventions
+- ✅ Add **Zod schemas** for all API inputs
+- ✅ Write **tests** for new features
+- ✅ Update **documentation** as needed
+- ✅ Check **.cursor/rules/** for detailed standards
+
+## ⭐ Why This Project?
+
+This affiliate bot showcases **modern TypeScript development** with:
+
+- 🎯 **Production-Ready** - Battle-tested patterns and error handling
+- 🚀 **Edge-First** - Global deployment via Cloudflare Workers
+- 🤖 **AI-Enhanced** - 6 Cursor rules for consistent development
+- 📦 **Monorepo** - Organized with TurboRepo and Bun workspaces
+- ✅ **Type-Safe** - End-to-end TypeScript with Zod validation
+- 📊 **Observable** - Health checks, monitoring, and metrics
+- 🧪 **Well-Tested** - Unit tests (Vitest) + E2E (Playwright)
+- 📚 **Well-Documented** - Structured guides and inline comments
+
+Perfect for learning **modern full-stack TypeScript** or building your own affiliate system!
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [Grammy](https://grammy.dev/) - Telegram Bot framework
-- [Hono](https://hono.dev/) - Web framework
-- [Cloudflare](https://workers.cloudflare.com/) - Edge computing platform
-- [Vue.js](https://vuejs.org/) - Progressive JavaScript framework
-- [Bun](https://bun.sh/) - All-in-one JavaScript runtime
+Built with amazing open-source tools:
+
+- [**Grammy**](https://grammy.dev/) - The Telegram Bot framework
+- [**Hono**](https://hono.dev/) - Ultra-fast web framework
+- [**Cloudflare**](https://workers.cloudflare.com/) - Edge computing platform
+- [**Vue.js**](https://vuejs.org/) - Progressive JavaScript framework
+- [**Bun**](https://bun.sh/) - All-in-one JavaScript runtime & toolkit
+- [**TurboRepo**](https://turbo.build/) - High-performance build system
+- [**Tailwind CSS**](https://tailwindcss.com/) - Utility-first CSS framework
+
+## 🔗 Links
+
+- **Documentation**: [./docs/](./docs/)
+- **Cursor Rules**: [./.cursor/README.md](./.cursor/README.md)
+- **Architecture**: [./docs/architecture/ARCHITECTURE-FLOWS.md](./docs/architecture/ARCHITECTURE-FLOWS.md)
+- **Deployment**: [./docs/deployment/PHASE-2-DEPLOYMENT-GUIDE.md](./docs/deployment/PHASE-2-DEPLOYMENT-GUIDE.md)
 
 ---
 
-**Built with ❤️ using Bun**
+<div align="center">
+
+**Built with ❤️ using Bun · TypeScript · Cloudflare Workers**
+
+⭐ **Star this repo if you find it useful!** ⭐
+
+</div>

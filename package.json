@@ -2,6 +2,34 @@
   "name": "telegram-affiliate-monorepo",
   "version": "1.0.0",
   "private": true,
+  "description": "Enterprise Telegram affiliate bot with multi-level commission tracking, real-time analytics, and AI-enhanced development workflow",
+  "keywords": [
+    "telegram-bot",
+    "affiliate-marketing",
+    "cloudflare-workers",
+    "bun",
+    "typescript",
+    "vue3",
+    "monorepo",
+    "commission-tracking",
+    "grammy",
+    "hono",
+    "multi-level-marketing",
+    "referral-system",
+    "edge-computing",
+    "d1-database",
+    "turborepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brendadeeznuts1111/telegram-affiliate.git"
+  },
+  "homepage": "https://github.com/brendadeeznuts1111/telegram-affiliate#readme",
+  "bugs": {
+    "url": "https://github.com/brendadeeznuts1111/telegram-affiliate/issues"
+  },
+  "author": "brendadeeznuts1111",
+  "license": "MIT",
   "workspaces": [
     "apps/*",
     "packages/*"
