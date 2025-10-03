@@ -1,0 +1,340 @@
+---
+alwaysApply: true
+description: Deployment guidelines, Cloudflare Workers compatibility, and environment management
+---
+
+# Deployment & Cloudflare Workers Guide
+
+## Deployment Targets
+
+This project has **three deployment targets:**
+
+1. **Telegram Bot** → Local server or VPS (polling mode)
+2. **API** → Cloudflare Workers
+3. **Dashboard** → Cloudflare Pages
+
+## Cloudflare Workers Compatibility
+
+### Runtime Differences
+
+Cloudflare Workers **DO NOT** support:
+- `bun:sqlite` - Use D1 instead
+- File system access - Use KV or R2
+- Long-running processes - Max 30 seconds CPU time
+
+### Using Node.js APIs in Workers
+
+Always use `node:` prefix and enable `nodejs_compat`:
+
+```typescript
+// ✅ DO: Use node: prefix
+import { createHmac } from "node:crypto";
+import { resolve } from "node:path";
+
+// ❌ DON'T: Use without prefix
+import { createHmac } from "crypto";
+```
+
+**Configuration in [apps/api/wrangler.toml](mdc:apps/api/wrangler.toml):**
+```toml
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+```
+
+### D1 Database (Production)
+
+Cloudflare D1 is SQLite-compatible but accessed differently:
+
+```typescript
+// ✅ DO: Use D1 binding in Workers
+export default {
+  async fetch(request: Request, env: Env) {
+    const users = await env.DB.prepare(
+      "SELECT * FROM users WHERE id = ?"
+    ).bind(userId).all();
+    
+    return Response.json(users);
+  }
+};
+
+// ❌ DON'T: Use bun:sqlite
+import { Database } from "bun:sqlite";
+const db = new Database("./data/app.db");
+```
+
+### KV Storage (Production)
+
+For caching and temporary data:
+
+```typescript
+// ✅ DO: Use KV binding
+const cachedData = await env.KV_NAMESPACE.get("key");
+await env.KV_NAMESPACE.put("key", "value", { expirationTtl: 3600 });
+
+// ❌ DON'T: Use file system
+await Bun.write("cache.json", data);
+```
+
+**Bindings in [wrangler.toml](mdc:apps/api/wrangler.toml):**
+```toml
+[[kv_namespaces]]
+binding = "KV_NAMESPACE"
+id = "your-kv-id"
+```
+
+## Environment Management
+
+### No Hardcoded Values
+
+**NEVER** hardcode:
+- Ports
+- API URLs
+- Tokens
+- Database paths
+
+```typescript
+// ✅ DO: Use environment variables
+const config = {
+  port: parseInt(Bun.env.PORT || "3001"),
+  apiUrl: Bun.env.API_URL || "http://localhost:3001",
+  botToken: Bun.env.BOT_TOKEN,
+};
+
+// ❌ DON'T: Hardcode
+const PORT = 3001;
+const API_URL = "http://localhost:3001";
+```
+
+### Environment Files
+
+**Development:**
+- Root `.env` - Bot configuration
+- `apps/api/.env.local` - API overrides
+- `apps/dashboard/.env.local` - Dashboard overrides
+
+**Production:**
+- Cloudflare Workers secrets - via Wrangler CLI
+- Environment variables - via wrangler.toml
+
+See [env.example](mdc:env.example) for required variables.
+
+## Deployment Commands
+
+### API to Cloudflare Workers
+
+```bash
+# Staging environment
+cd apps/api
+bun run deploy:staging
+
+# Production environment
+bun run deploy:prod
+```
+
+See [apps/api/package.json](mdc:apps/api/package.json) for available commands.
+
+### Dashboard to Cloudflare Pages
+
+```bash
+# Build locally
+cd apps/dashboard
+bun run build
+
+# Deploy via GitHub Actions (automatic)
+git push origin main
+```
+
+See [apps/dashboard/package.json](mdc:apps/dashboard/package.json).
+
+### Bot to Server
+
+```bash
+# Local development (polling)
+bun run dev:bot
+
+# Production (polling on VPS)
+bun run start:bot
+
+# Or use Docker
+docker-compose up -d bot
+```
+
+## Database Migrations
+
+### Local Development (SQLite)
+
+```bash
+bun run scripts/init-database.ts
+```
+
+### Production (D1)
+
+```bash
+# Create D1 database
+bun run db:create
+
+# Execute migrations
+bun run db:execute
+```
+
+Migration files: `apps/api/src/db/migrations/`
+
+## Wrangler Configuration
+
+Key settings in [apps/api/wrangler.toml](mdc:apps/api/wrangler.toml):
+
+```toml
+name = "telegram-affiliate-api"
+main = "src/index-worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "affiliate-db"
+database_id = "your-db-id"
+
+# KV Namespace
+[[kv_namespaces]]
+binding = "KV_NAMESPACE"
+id = "your-kv-id"
+
+# Environment-specific
+[env.staging]
+name = "telegram-affiliate-api-staging"
+
+[env.production]
+name = "telegram-affiliate-api-prod"
+```
+
+## Secrets Management
+
+### Setting Secrets
+
+```bash
+# Add secret to Wrangler
+echo "your-bot-token" | wrangler secret put BOT_TOKEN
+
+# List secrets
+wrangler secret list
+
+# Delete secret
+wrangler secret delete BOT_TOKEN
+```
+
+### Accessing Secrets
+
+```typescript
+export default {
+  async fetch(request: Request, env: Env) {
+    const botToken = env.BOT_TOKEN;
+    // use token
+  }
+};
+```
+
+## GitHub Actions CI/CD
+
+Workflows in `.github/workflows/`:
+
+- `deploy-api.yml` - Deploy API to Cloudflare Workers
+- `deploy-dashboard.yml` - Deploy Dashboard to Cloudflare Pages
+- `test.yml` - Run tests on push
+
+**Required GitHub Secrets:**
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+## Health Checks
+
+### API Health Endpoint
+
+```typescript
+// apps/api/src/routes/health.ts
+app.get("/health", (c) => {
+  return c.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: c.env.ENVIRONMENT,
+  });
+});
+```
+
+**Test:** `curl https://api.example.com/health`
+
+### Monitoring
+
+See [docs/guides/MONITORING-GUIDE.md](mdc:docs/guides/MONITORING-GUIDE.md)
+
+## Performance Optimization
+
+### Cloudflare Workers
+
+- Keep bundles small (<1MB)
+- Minimize dependencies
+- Use Workers KV for caching
+- Leverage edge caching with Cache API
+
+### Build Optimization
+
+```bash
+# Analyze bundle size
+cd apps/dashboard
+bun run build
+bun run analyze
+```
+
+## Troubleshooting Deployment
+
+### Common Issues
+
+**1. Module not found in Workers**
+- Check compatibility flags
+- Ensure `node:` prefix for Node.js modules
+- Verify dependencies are Workers-compatible
+
+**2. Database connection fails**
+- Check D1 binding in wrangler.toml
+- Verify database_id is correct
+- Run migrations: `bun run db:execute`
+
+**3. Environment variables missing**
+- Set secrets: `wrangler secret put VAR_NAME`
+- Check wrangler.toml [vars] section
+- Verify env.VARIABLE access in code
+
+### Debug Mode
+
+```bash
+# Local development with debugging
+cd apps/api
+wrangler dev --local --port 8787
+
+# View logs in production
+wrangler tail
+```
+
+## Deployment Checklist
+
+Before deploying to production:
+
+- [ ] All tests pass (`bun test`)
+- [ ] Type checking passes (`bun run type-check`)
+- [ ] Environment variables configured
+- [ ] Secrets set in Wrangler
+- [ ] Database migrations applied
+- [ ] Health check endpoint works
+- [ ] CORS settings configured
+- [ ] Rate limiting enabled
+- [ ] Error handling tested
+- [ ] Monitoring alerts configured
+
+## Resources
+
+- [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
+- [D1 Database Docs](https://developers.cloudflare.com/d1/)
+- [Wrangler CLI Docs](https://developers.cloudflare.com/workers/wrangler/)
+- [Cloudflare Pages Docs](https://developers.cloudflare.com/pages/)
+- Project: [wrangler.toml](mdc:apps/api/wrangler.toml)
+- Project: [Deployment Guide](mdc:docs/deployment/PHASE-2-DEPLOYMENT-GUIDE.md)

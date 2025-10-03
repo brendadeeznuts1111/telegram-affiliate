@@ -274,9 +274,8 @@ bun run dev:local
 ## 🔗 **Related Documentation**
 
 - [FIXES-COMPLETED.md](./FIXES-COMPLETED.md) - Detailed fix explanations
-- [LEVEL-5-AFFILIATE-EMPIRE.md](./LEVEL-5-AFFILIATE-EMPIRE.md) - Feature guide
-- [CODEBASE-REVIEW.md](./CODEBASE-REVIEW.md) - Code analysis
-- [QR-FIX-SUMMARY.md](./QR-FIX-SUMMARY.md) - QR implementation details
+- [LEVEL-5-AFFILIATE-EMPIRE.md](../archive/LEVEL-5-AFFILIATE-EMPIRE.md) - Feature guide
+- [CLOUDFLARE-ARCHITECTURE-REVIEW.md](../architecture/CLOUDFLARE-ARCHITECTURE-REVIEW.md) - Architecture analysis
 
 ---
 

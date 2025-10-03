@@ -82,7 +82,7 @@ bun run deploy:ui:prod
 bun run deploy:prod
 ```
 
-See **[CLOUDFLARE-SETUP.md](./CLOUDFLARE-SETUP.md)** for detailed deployment instructions.
+See **[CLOUDFLARE-SETUP.md](./docs/archive/CLOUDFLARE-SETUP.md)** for detailed deployment instructions.
 
 ## 📁 Project Structure
 
@@ -140,27 +140,27 @@ bun run test:e2e:ui
 bun run lighthouse
 ```
 
-See **[TESTING.md](./TESTING.md)** for comprehensive testing guide.
+See **[TESTING.md](./docs/archive/TESTING.md)** for comprehensive testing guide.
 
 ## 📚 Documentation
 
 ### 🎯 Essential Guides
-- **[ARCHITECTURE-FLOWS.md](./ARCHITECTURE-FLOWS.md)** - 🏗️ Complete system architecture with Mermaid diagrams
-- **[MONITORING-GUIDE.md](./MONITORING-GUIDE.md)** - 📊 Operations, monitoring, and troubleshooting
-- **[BOT-READY.md](./BOT-READY.md)** - 🤖 Bot configuration and deployment
-- **[FINAL-SUMMARY.md](./FINAL-SUMMARY.md)** - 📋 Project completion overview
+- **[ARCHITECTURE-FLOWS.md](./docs/architecture/ARCHITECTURE-FLOWS.md)** - 🏗️ Complete system architecture with Mermaid diagrams
+- **[MONITORING-GUIDE.md](./docs/guides/MONITORING-GUIDE.md)** - 📊 Operations, monitoring, and troubleshooting
+- **[BOT-READY.md](./docs/deployment/BOT-READY.md)** - 🤖 Bot configuration and deployment
+- **[FINAL-SUMMARY.md](./docs/reports/FINAL-SUMMARY.md)** - 📋 Project completion overview
 
 ### 🔧 Setup & Deployment
-- **[BOT-SETUP.md](./BOT-SETUP.md)** - Telegram bot configuration & webhook setup
-- **[CLOUDFLARE-SETUP.md](./CLOUDFLARE-SETUP.md)** - Cloudflare deployment guide
-- **[AUTHENTICATION-GUIDE.md](./AUTHENTICATION-GUIDE.md)** - OAuth vs API tokens
-- **[LOCAL-DEV.md](./LOCAL-DEV.md)** - Local development setup
+- **[BOT-SETUP.md](./docs/archive/BOT-SETUP.md)** - Telegram bot configuration & webhook setup
+- **[CLOUDFLARE-SETUP.md](./docs/archive/CLOUDFLARE-SETUP.md)** - Cloudflare deployment guide
+- **[AUTHENTICATION-GUIDE.md](./docs/deployment/AUTHENTICATION-GUIDE.md)** - OAuth vs API tokens
+- **[LOCAL-DEV.md](./docs/archive/LOCAL-DEV.md)** - Local development setup
 
 ### 📊 Technical Reference
-- **[TESTING.md](./TESTING.md)** - Testing strategies & tools
-- **[CLOUDFLARE-ARCHITECTURE-REVIEW.md](./CLOUDFLARE-ARCHITECTURE-REVIEW.md)** - Architecture analysis
-- **[docs/LEVELS-FEATURE-GUIDE.md](./docs/LEVELS-FEATURE-GUIDE.md)** - Multi-level system reference
-- **[docs/WEBAPP-ARCHITECTURE.md](./docs/WEBAPP-ARCHITECTURE.md)** - WebApp technical details
+- **[TESTING.md](./docs/archive/TESTING.md)** - Testing strategies & tools
+- **[CLOUDFLARE-ARCHITECTURE-REVIEW.md](./docs/architecture/CLOUDFLARE-ARCHITECTURE-REVIEW.md)** - Architecture analysis
+- **[LEVELS-FEATURE-GUIDE.md](./docs/LEVELS-FEATURE-GUIDE.md)** - Multi-level system reference
+- **[WEBAPP-ARCHITECTURE.md](./docs/WEBAPP-ARCHITECTURE.md)** - WebApp technical details
 
 ## 🎯 Available Commands
 

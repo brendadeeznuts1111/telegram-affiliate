@@ -206,9 +206,9 @@ All dependencies installed successfully:
 
 ## 🔗 Documentation
 
-- [LEVEL-5-AFFILIATE-EMPIRE.md](./LEVEL-5-AFFILIATE-EMPIRE.md) - Full feature guide
-- [CODEBASE-REVIEW.md](./CODEBASE-REVIEW.md) - Code review and analysis
-- [QR-FIX-SUMMARY.md](./QR-FIX-SUMMARY.md) - QR generation implementation
+- [LEVEL-5-AFFILIATE-EMPIRE.md](../archive/LEVEL-5-AFFILIATE-EMPIRE.md) - Full feature guide
+- [ARCHITECTURE-FLOWS.md](../architecture/ARCHITECTURE-FLOWS.md) - Complete system architecture
+- [MONITORING-GUIDE.md](../guides/MONITORING-GUIDE.md) - Operations and monitoring
 
 ---
 

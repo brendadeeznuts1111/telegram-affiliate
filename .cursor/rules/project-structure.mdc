@@ -1,0 +1,129 @@
+---
+alwaysApply: true
+description: Project structure, monorepo organization, and file placement guidelines
+---
+
+# Telegram Affiliate Bot - Project Structure
+
+## Monorepo Organization
+
+This is a **Bun workspace monorepo** managed by TurboRepo. See [package.json](mdc:package.json) and [turbo.json](mdc:turbo.json).
+
+## Directory Structure
+
+### 📁 src/
+**Telegram Bot (Grammy framework) - Polling mode**
+
+- `src/api/handlers/` - Bot command handlers
+- `src/core/` - Core bot logic, config, database
+- `src/repositories/` - Database access layer (SQLite)
+- `src/services/` - Business logic services
+- `src/types/` - TypeScript type definitions
+- `src/utils/` - Utility functions
+
+**Entry point:** [src/index.ts](mdc:src/index.ts)  
+**Config:** [src/core/config.ts](mdc:src/core/config.ts)
+
+### 📁 apps/api/
+**Hono API Server (Cloudflare Workers)**
+
+- `apps/api/src/routes/` - API endpoints
+- `apps/api/src/middleware/` - Auth & observability middleware
+- `apps/api/src/utils/` - Error handling, DB utilities
+- `apps/api/src/db/migrations/` - D1 database migrations
+
+**Entry points:**
+- [apps/api/src/index.ts](mdc:apps/api/src/index.ts) - Local Bun server
+- [apps/api/src/index-worker.ts](mdc:apps/api/src/index-worker.ts) - Cloudflare Workers
+
+**Config:** [apps/api/wrangler.toml](mdc:apps/api/wrangler.toml)
+
+### 📁 apps/dashboard/
+**Vue 3 Dashboard (Vite + Tailwind)**
+
+- `apps/dashboard/src/views/` - Dashboard pages
+- `apps/dashboard/src/stores/` - Pinia state management
+- `apps/dashboard/src/api/` - API client
+- `apps/dashboard/src/router/` - Vue Router config
+- `apps/dashboard/src/components/` - Reusable components
+
+**Entry point:** [apps/dashboard/src/main.ts](mdc:apps/dashboard/src/main.ts)  
+**Config:** [apps/dashboard/vite.config.ts](mdc:apps/dashboard/vite.config.ts)
+
+### 📁 packages/schemas/
+**Shared Zod schemas** (workspace package)
+
+- Used by both API and Dashboard
+- Type-safe validation schemas
+- Referenced as `@affiliate/schemas` in package.json
+
+### 📁 scripts/
+**Utility scripts and automation**
+
+- Database initialization and migration
+- Setup and verification scripts
+- Demo and launch scripts
+
+**Key scripts:**
+- [scripts/init-database.ts](mdc:scripts/init-database.ts)
+- [scripts/launch-affiliate.ts](mdc:scripts/launch-affiliate.ts)
+
+### 📁 e2e/
+**Playwright E2E tests**
+
+**Config:** [playwright.config.ts](mdc:playwright.config.ts)
+
+### 📁 test/
+**Vitest unit tests**
+
+**Config:** [vitest.config.ts](mdc:vitest.config.ts)
+
+### 📁 data/
+**SQLite database files** (local development)
+
+- `affiliate_system.db` - Main database
+- `.db-shm`, `.db-wal` - SQLite journal files
+
+## File Naming Conventions
+
+### TypeScript Files
+- **API routes:** `[route].[method].bun.ts` or `[route].ts`
+- **Repositories:** `[entity].repository.ts`
+- **Services:** `[entity].service.ts`
+- **Handlers:** `[name].handler.ts`
+- **Types:** `[entity].ts`
+
+### Configuration Files
+- Use lowercase kebab-case
+- Keep in project root or app-specific directories
+- Examples: `tsconfig.json`, `wrangler.toml`, `vite.config.ts`
+
+### Documentation
+- Use UPPERCASE with hyphens: `SETUP-GUIDE.md`
+- Place in appropriate `docs/` subdirectory
+- Never clutter the project root
+
+## Adding New Features
+
+### New Bot Command
+1. Create handler in `src/api/handlers/`
+2. Add route in bot instance
+3. Update types in `src/types/`
+
+### New API Endpoint
+1. Create route in `apps/api/src/routes/`
+2. Add to router in `apps/api/src/index-worker.ts`
+3. Update dashboard API client if needed
+
+### New Dashboard Page
+1. Create view in `apps/dashboard/src/views/`
+2. Add route in `apps/dashboard/src/router/`
+3. Create store if needed in `apps/dashboard/src/stores/`
+
+## Important Configuration Files
+
+- [package.json](mdc:package.json) - Root workspace config
+- [bunfig.toml](mdc:bunfig.toml) - Bun runtime config
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript config
+- [turbo.json](mdc:turbo.json) - TurboRepo config
+- [.gitignore](mdc:.gitignore) - Git ignore rules

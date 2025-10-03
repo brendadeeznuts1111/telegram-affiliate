@@ -413,5 +413,5 @@ See [CLOUDFLARE-SETUP.md](./CLOUDFLARE-SETUP.md) for deployment instructions.
 
 ---
 
-**Questions?** Check the [main README](./README.md) or open an issue.
+**Questions?** Check the [main README](../../README.md) or open an issue.
 

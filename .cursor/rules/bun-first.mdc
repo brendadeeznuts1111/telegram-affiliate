@@ -1,0 +1,190 @@
+---
+alwaysApply: true
+description: Bun-first development practices and native API usage
+---
+
+# Bun-First Development
+
+This project uses **Bun exclusively** as the runtime and tooling platform.
+
+## Core Principles
+
+1. **Use Bun native APIs** wherever possible
+2. **Avoid Node.js-specific packages** when Bun has built-in alternatives
+3. **No external dependencies** for functionality Bun provides natively
+
+## Bun Native APIs to Use
+
+### File System
+```typescript
+// ✅ DO: Use Bun's file API
+const file = Bun.file("./data.json");
+const contents = await file.text();
+await Bun.write("output.txt", "data");
+
+// ❌ DON'T: Use Node.js fs module
+import fs from "fs";
+```
+
+### Environment Variables
+```typescript
+// ✅ DO: Use Bun.env
+const token = Bun.env.BOT_TOKEN;
+
+// ❌ DON'T: Use dotenv package
+import dotenv from "dotenv";
+```
+
+### Cryptography
+```typescript
+// ✅ DO: Use Bun.password for hashing
+const hash = await Bun.password.hash(token);
+const isValid = await Bun.password.verify(input, hash);
+
+// ✅ DO: Use Bun.CryptoHasher for checksums
+const hasher = new Bun.CryptoHasher("sha256");
+hasher.update("data");
+const digest = hasher.digest("hex");
+```
+
+### HTTP Requests
+```typescript
+// ✅ DO: Use fetch (built-in)
+const response = await fetch("https://api.example.com");
+const data = await response.json();
+```
+
+### SQLite (Local Development)
+```typescript
+// ✅ DO: Use bun:sqlite
+import { Database } from "bun:sqlite";
+const db = new Database("./data/app.db");
+
+// ❌ DON'T: Use better-sqlite3 or similar
+```
+
+### Path Operations
+```typescript
+// ✅ DO: Use import.meta for paths
+const configPath = import.meta.resolve("./config.json");
+
+// ✅ DO: Use Bun.resolveSync for path resolution
+const resolved = Bun.resolveSync("./file.ts", process.cwd());
+```
+
+### Process Management
+```typescript
+// ✅ DO: Use Bun.spawn
+const proc = Bun.spawn(["ls", "-la"]);
+const output = await new Response(proc.stdout).text();
+
+// ✅ DO: Use Bun.$ for shell commands
+import { $ } from "bun";
+const result = await $`ls -la`.text();
+```
+
+### Testing
+```typescript
+// ✅ DO: Use Bun's built-in test runner
+import { describe, test, expect } from "bun:test";
+
+describe("feature", () => {
+  test("works", () => {
+    expect(true).toBe(true);
+  });
+});
+```
+
+## Running Commands
+
+See [package.json](mdc:package.json) for available scripts.
+
+### Development
+```bash
+bun run dev              # All services
+bun run dev:bot          # Bot only
+bun run dev:api          # API only  
+bun run dev:ui           # Dashboard only
+```
+
+### Building
+```bash
+bun run build            # Build all apps
+bun build ./src/index.ts --outdir dist
+```
+
+### Testing
+```bash
+bun test                 # Run tests
+bun test --coverage      # With coverage
+```
+
+### Package Management
+```bash
+bun install              # Install dependencies
+bun add <package>        # Add dependency
+bun remove <package>     # Remove dependency
+```
+
+## Configuration
+
+### bunfig.toml
+See [bunfig.toml](mdc:bunfig.toml) for Bun runtime configuration:
+- Registry overrides
+- Install behavior
+- Test configuration
+
+### TypeScript Support
+Ensure proper Bun TypeScript support in [tsconfig.json](mdc:tsconfig.json):
+```json
+{
+  "compilerOptions": {
+    "types": ["@types/bun"],
+    "module": "Preserve",
+    "moduleResolution": "bundler"
+  }
+}
+```
+
+## Cloudflare Workers Compatibility
+
+When deploying to Cloudflare Workers, use Node.js-compatible APIs with `nodejs_compat` flag:
+
+```typescript
+// ✅ DO: Use node: prefix for Workers compatibility
+import { createHmac } from "node:crypto";
+import { resolve } from "node:path";
+
+// ❌ DON'T: Use bun:sqlite in Workers
+// It's not available in Cloudflare Workers runtime
+```
+
+See [apps/api/wrangler.toml](mdc:apps/api/wrangler.toml) for compatibility settings.
+
+## Performance Benefits
+
+- **Fast startup:** No Node.js overhead
+- **Native TypeScript:** No transpilation needed
+- **Built-in bundler:** No webpack/esbuild setup
+- **Fast package manager:** 20x faster than npm
+- **Hot reload:** Instant dev server updates
+
+## Debugging
+
+```typescript
+// ✅ DO: Use Bun.inspect.table for structured data
+const data = [
+  { name: "Alice", age: 30 },
+  { name: "Bob", age: 25 }
+];
+Bun.inspect.table(data);
+
+// ✅ DO: Use console.log for debugging
+console.log({ variable, nested: { data } });
+```
+
+## Resources
+
+- [Bun Documentation](https://bun.sh/docs)
+- [Bun APIs](https://bun.sh/docs/api)
+- [Bun Test](https://bun.sh/docs/cli/test)

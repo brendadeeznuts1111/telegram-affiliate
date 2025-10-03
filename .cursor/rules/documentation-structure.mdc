@@ -1,0 +1,98 @@
+---
+alwaysApply: true
+description: Guidelines for organizing and placing documentation files in the correct directories
+---
+
+# Documentation Organization Guide
+
+## Directory Structure
+
+All documentation must be placed in the appropriate subdirectory under `docs/`:
+
+### 📁 docs/architecture/
+Place architecture and design documents here:
+- System architecture diagrams
+- Technical design documents
+- Infrastructure reviews
+- Architecture decision records (ADRs)
+
+**Examples:** `ARCHITECTURE-FLOWS.md`, `CLOUDFLARE-ARCHITECTURE-REVIEW.md`
+
+### 📁 docs/deployment/
+Place deployment and setup guides here:
+- Deployment procedures
+- Authentication setup
+- Configuration guides
+- Production readiness checklists
+
+**Examples:** `BOT-READY.md`, `AUTHENTICATION-GUIDE.md`, `PHASE-2-DEPLOYMENT-GUIDE.md`
+
+### 📁 docs/guides/
+Place operational and how-to guides here:
+- Monitoring guides
+- Troubleshooting guides
+- Best practices
+- User guides
+
+**Examples:** `MONITORING-GUIDE.md`
+
+### 📁 docs/reports/
+Place status reports and progress tracking here:
+- Status reports
+- Progress summaries
+- Completion reports
+- Issue tracking documents
+
+**Examples:** `STATUS-REPORT.md`, `FINAL-SUMMARY.md`, `FIXES-COMPLETED.md`
+
+### 📁 docs/cursor/
+Place Cursor AI rules and compliance docs here:
+- Cursor rule definitions
+- AI assistant guidelines
+- Coding standards
+
+**Examples:** `CURSOR-RULES-100-PERCENT.md`, `CURSOR-RULES-COMPLIANCE.md`
+
+### 📁 docs/archive/
+Place outdated or superseded documentation here:
+- Deprecated guides
+- Old setup instructions
+- Historical documentation
+
+**Examples:** `BOT-SETUP.md`, `LEVEL-5-AFFILIATE-EMPIRE.md`
+
+## Root Directory
+
+**Only [README.md](mdc:README.md) should exist in the project root.**
+
+## Linking Between Documents
+
+When creating links between documentation files:
+
+1. **From root README to docs:**
+   ```markdown
+   [ARCHITECTURE-FLOWS.md](./docs/architecture/ARCHITECTURE-FLOWS.md)
+   ```
+
+2. **Between files in same directory:**
+   ```markdown
+   [OTHER-DOC.md](./OTHER-DOC.md)
+   ```
+
+3. **Between different docs subdirectories:**
+   ```markdown
+   [MONITORING-GUIDE.md](../guides/MONITORING-GUIDE.md)
+   ```
+
+4. **From docs to root:**
+   ```markdown
+   [README.md](../../README.md)
+   ```
+
+## Creating New Documentation
+
+Before creating a new markdown file:
+1. Determine the appropriate category
+2. Place it in the correct docs/ subdirectory
+3. Update [README.md](mdc:README.md) with a link if it's a primary document
+4. Use relative links that respect the directory structure

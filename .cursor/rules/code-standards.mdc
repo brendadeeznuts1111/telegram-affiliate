@@ -1,0 +1,341 @@
+---
+alwaysApply: true
+description: Code quality standards, development practices, and project-specific guidelines
+---
+
+# Code Quality & Development Standards
+
+## TypeScript Standards
+
+### Strict Type Safety
+```typescript
+// ✅ DO: Use explicit types
+interface User {
+  id: string;
+  telegramId: number;
+  username: string;
+}
+
+function getUser(id: string): User | null {
+  // implementation
+}
+
+// ❌ DON'T: Use 'any'
+function getUser(id: any): any {
+  // bad practice
+}
+```
+
+### Zod Schemas for Validation
+
+All API inputs must use Zod schemas:
+
+```typescript
+// ✅ DO: Define and use Zod schemas
+import { z } from "zod";
+
+const withdrawalSchema = z.object({
+  userId: z.string(),
+  amount: z.number().min(10),
+  address: z.string().min(10),
+  chain: z.enum(["ton", "tron"])
+});
+
+// Manual validation (no middleware)
+const result = withdrawalSchema.safeParse(data);
+if (!result.success) {
+  return { error: "Invalid request", details: result.error };
+}
+```
+
+See [packages/schemas/](mdc:packages/schemas/src/index.ts) for shared schemas.
+
+## Repository Pattern
+
+### Data Access Layer
+
+All database operations must go through repositories:
+
+```typescript
+// ✅ DO: Use repository pattern
+// src/repositories/user.repository.ts
+export class UserRepository {
+  async findById(id: string): Promise<User | null> {
+    // database query
+  }
+  
+  async create(data: CreateUserDto): Promise<User> {
+    // database insert
+  }
+}
+
+// ❌ DON'T: Query database directly in handlers
+async function handler() {
+  const user = db.query("SELECT * FROM users WHERE id = ?", [id]);
+}
+```
+
+**Repository locations:**
+- Bot: `src/repositories/`
+- API: `apps/api/src/routes/` (inline for simple queries)
+
+## Service Layer
+
+Business logic must be in service classes:
+
+```typescript
+// ✅ DO: Separate business logic
+// src/services/commission.service.ts
+export class CommissionService {
+  constructor(
+    private commissionRepo: CommissionRepository,
+    private userRepo: UserRepository
+  ) {}
+  
+  async calculateCommission(event: DepositEvent): Promise<Commission> {
+    // complex business logic
+  }
+}
+```
+
+## Error Handling
+
+### Fail Fast
+
+Always fail fast on errors:
+
+```typescript
+// ✅ DO: Fail immediately
+if (!token) {
+  throw new Error("BOT_TOKEN is required");
+}
+
+// ❌ DON'T: Continue with invalid state
+if (!token) {
+  console.warn("Missing token");
+  // continuing anyway...
+}
+```
+
+### Use Custom Error Classes
+
+```typescript
+// ✅ DO: Define specific errors
+export class ValidationError extends Error {
+  constructor(message: string, public details?: unknown) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
+throw new ValidationError("Invalid input", { field: "amount" });
+```
+
+### Error Middleware
+
+API errors must go through centralized handler:
+
+See [apps/api/src/utils/error-handling.ts](mdc:apps/api/src/utils/error-handling.ts)
+
+## Security Best Practices
+
+### Path Validation
+
+```typescript
+// ✅ DO: Use import.meta.resolve for path safety
+const configPath = import.meta.resolve("./config.json");
+
+// ✅ DO: Validate user input paths
+import { isValidPath } from "./utils/safe-paths";
+if (!isValidPath(userInput)) {
+  throw new Error("Invalid path");
+}
+```
+
+### Token Generation
+
+```typescript
+// ✅ DO: Use Bun.password.hash for tokens
+const token = await Bun.password.hash(userId + Date.now());
+
+// ❌ DON'T: Use weak random generation
+const token = Math.random().toString();
+```
+
+### Environment Variables
+
+```typescript
+// ✅ DO: Validate required env vars at startup
+const config = {
+  botToken: Bun.env.BOT_TOKEN,
+  adminIds: Bun.env.ADMIN_IDS?.split(",") || [],
+};
+
+if (!config.botToken) {
+  throw new Error("BOT_TOKEN environment variable is required");
+}
+```
+
+See [src/core/config.ts](mdc:src/core/config.ts) for configuration management.
+
+## Testing Standards
+
+### Test File Naming
+
+Bun test auto-discovers these patterns:
+- `*.test.ts`
+- `*.spec.ts`
+- `*_test.ts`
+- `*_spec.ts`
+
+### Test Structure
+
+```typescript
+import { describe, test, expect } from "bun:test";
+
+describe("UserRepository", () => {
+  test("creates user with valid data", async () => {
+    const repo = new UserRepository(db);
+    const user = await repo.create({
+      telegramId: 12345,
+      username: "testuser"
+    });
+    
+    expect(user.id).toBeDefined();
+    expect(user.telegramId).toBe(12345);
+  });
+  
+  test("throws on duplicate telegram ID", async () => {
+    const repo = new UserRepository(db);
+    await repo.create({ telegramId: 12345, username: "test" });
+    
+    await expect(
+      repo.create({ telegramId: 12345, username: "test2" })
+    ).rejects.toThrow();
+  });
+});
+```
+
+## Code Formatting
+
+### Prettier Configuration
+
+Run before committing:
+
+```bash
+bun x prettier --check .        # Check formatting
+bun x prettier --write .        # Auto-fix
+```
+
+### File Naming
+
+- **lowercase kebab-case:** `user-repository.ts`, `commission-service.ts`
+- **Extensions:** Always `.ts`, `.tsx`, `.js` (never mixed)
+- **Special files:** `index.ts`, `README.md`
+
+## Git Commit Practices
+
+### Commit Message Format
+
+```
+type(scope): brief description
+
+- Detailed change 1
+- Detailed change 2
+```
+
+**Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
+
+**Examples:**
+```
+feat(api): add withdrawal endpoint
+fix(bot): handle missing username gracefully
+docs(readme): update deployment instructions
+```
+
+## Code Review Checklist
+
+Before submitting changes:
+
+- [ ] TypeScript compiles without errors
+- [ ] All tests pass (`bun test`)
+- [ ] Code is formatted (`bun x prettier --check .`)
+- [ ] No hardcoded secrets or tokens
+- [ ] Error handling is comprehensive
+- [ ] Repository pattern used for data access
+- [ ] Zod schemas used for validation
+- [ ] Documentation updated if needed
+
+## Performance Considerations
+
+### Database Queries
+
+```typescript
+// ✅ DO: Use indexes and efficient queries
+db.query(`
+  SELECT * FROM users 
+  WHERE telegram_id = ? 
+  LIMIT 1
+`, [telegramId]);
+
+// ❌ DON'T: Fetch all then filter
+const allUsers = db.query("SELECT * FROM users").all();
+const user = allUsers.find(u => u.telegram_id === telegramId);
+```
+
+### Async/Await
+
+```typescript
+// ✅ DO: Use parallel execution when possible
+const [user, stats, commissions] = await Promise.all([
+  userRepo.findById(id),
+  statsService.getUserStats(id),
+  commissionRepo.findByUser(id)
+]);
+
+// ❌ DON'T: Sequential when not needed
+const user = await userRepo.findById(id);
+const stats = await statsService.getUserStats(id);
+const commissions = await commissionRepo.findByUser(id);
+```
+
+## Documentation in Code
+
+### JSDoc Comments
+
+```typescript
+/**
+ * Calculate commission for a deposit event
+ * @param event - The deposit event containing amount and user info
+ * @param agentLevel - The agent's current level tier
+ * @returns Commission object with amount and breakdown
+ * @throws {ValidationError} If event data is invalid
+ */
+async calculateCommission(
+  event: DepositEvent,
+  agentLevel: AgentLevel
+): Promise<Commission> {
+  // implementation
+}
+```
+
+### Inline Comments
+
+```typescript
+// ✅ DO: Explain WHY, not WHAT
+// We use a 24-hour cache because commission rates
+// are only updated once per day by admin
+const COMMISSION_CACHE_TTL = 24 * 60 * 60;
+
+// ❌ DON'T: State the obvious
+// Set cache TTL to 86400
+const COMMISSION_CACHE_TTL = 86400;
+```
+
+## Resources
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Zod Documentation](https://zod.dev/)
+- [Bun Test Docs](https://bun.sh/docs/cli/test)
+- Project: [tsconfig.json](mdc:tsconfig.json)
+- Project: [package.json](mdc:package.json)

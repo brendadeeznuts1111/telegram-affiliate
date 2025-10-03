@@ -1,0 +1,158 @@
+---
+globs: "*.md"
+description: Standards for creating and maintaining links in markdown documentation
+---
+
+# Markdown Linking Standards
+
+## Always Use Relative Paths
+
+All internal documentation links must use relative paths, never absolute paths.
+
+## Link Path Patterns
+
+### From Root README
+
+When linking from [README.md](mdc:README.md) to documentation:
+
+```markdown
+✅ CORRECT:
+[ARCHITECTURE-FLOWS.md](./docs/architecture/ARCHITECTURE-FLOWS.md)
+[BOT-SETUP.md](./docs/archive/BOT-SETUP.md)
+[MONITORING-GUIDE.md](./docs/guides/MONITORING-GUIDE.md)
+
+❌ WRONG:
+[ARCHITECTURE-FLOWS.md](./ARCHITECTURE-FLOWS.md)
+[ARCHITECTURE-FLOWS.md](/docs/architecture/ARCHITECTURE-FLOWS.md)
+```
+
+### Between Files in Same Directory
+
+```markdown
+✅ CORRECT:
+[STATUS-REPORT.md](./STATUS-REPORT.md)
+[OTHER-DOC.md](./OTHER-DOC.md)
+```
+
+### Between Different docs/ Subdirectories
+
+From `docs/reports/` to `docs/architecture/`:
+```markdown
+✅ CORRECT:
+[ARCHITECTURE-FLOWS.md](../architecture/ARCHITECTURE-FLOWS.md)
+[MONITORING-GUIDE.md](../guides/MONITORING-GUIDE.md)
+```
+
+From `docs/archive/` to `docs/deployment/`:
+```markdown
+✅ CORRECT:
+[BOT-READY.md](../deployment/BOT-READY.md)
+```
+
+### From docs/ Subdirectory to Root
+
+From any `docs/` subdirectory to root:
+```markdown
+✅ CORRECT:
+[README.md](../../README.md)
+[package.json](../../package.json)
+```
+
+## Documentation Directory Mapping
+
+Know where files live:
+
+| Directory | Purpose | Example Files |
+|-----------|---------|---------------|
+| `docs/architecture/` | Architecture & design | `ARCHITECTURE-FLOWS.md` |
+| `docs/deployment/` | Deployment guides | `BOT-READY.md`, `AUTHENTICATION-GUIDE.md` |
+| `docs/guides/` | How-to guides | `MONITORING-GUIDE.md` |
+| `docs/reports/` | Status reports | `STATUS-REPORT.md`, `FINAL-SUMMARY.md` |
+| `docs/cursor/` | Cursor AI rules | `CURSOR-RULES-100-PERCENT.md` |
+| `docs/archive/` | Deprecated docs | `BOT-SETUP.md`, `TESTING.md` |
+
+## Link Verification
+
+Before committing markdown changes:
+
+1. **Verify all links work** - Click through to ensure paths are correct
+2. **Use relative paths** - Never use absolute filesystem paths
+3. **Check moved files** - If you move a markdown file, update all references to it
+4. **Test from different locations** - Ensure links work from all referencing files
+
+## External Links
+
+For external resources, use full URLs:
+
+```markdown
+✅ CORRECT:
+- [Bun Documentation](https://bun.sh/docs)
+- [Grammy Framework](https://grammy.dev/)
+- [Cloudflare Workers](https://workers.cloudflare.com/)
+```
+
+## Images and Assets
+
+If adding images (currently none in project):
+
+```markdown
+✅ CORRECT:
+![Architecture Diagram](./docs/images/architecture.png)
+![Dashboard Screenshot](../images/dashboard.png)
+```
+
+## Link Text Best Practices
+
+1. **Use descriptive link text:**
+   ```markdown
+   ✅ CORRECT: See [Deployment Guide](./docs/deployment/PHASE-2-DEPLOYMENT-GUIDE.md)
+   ❌ WRONG: Click [here](./docs/deployment/PHASE-2-DEPLOYMENT-GUIDE.md)
+   ```
+
+2. **Include file extension:**
+   ```markdown
+   ✅ CORRECT: [ARCHITECTURE-FLOWS.md](./docs/architecture/ARCHITECTURE-FLOWS.md)
+   ❌ WRONG: [ARCHITECTURE-FLOWS](./docs/architecture/ARCHITECTURE-FLOWS)
+   ```
+
+3. **Use consistent formatting:**
+   ```markdown
+   ✅ CORRECT: **[BOT-READY.md](./docs/deployment/BOT-READY.md)** - Bot configuration
+   ```
+
+## When Moving Documentation Files
+
+If you need to move a markdown file:
+
+1. Move the file to new location
+2. Search entire codebase for references: `grep -r "OLD-FILENAME.md" .`
+3. Update all links in:
+   - [README.md](mdc:README.md)
+   - Other documentation files
+   - Any scripts that reference it
+4. Test all updated links
+
+## Common Link Patterns Reference
+
+```markdown
+# From README.md to docs/
+./docs/architecture/FILE.md
+./docs/deployment/FILE.md
+./docs/guides/FILE.md
+./docs/reports/FILE.md
+./docs/archive/FILE.md
+
+# From docs/reports/ to other docs/
+../architecture/FILE.md
+../deployment/FILE.md
+../guides/FILE.md
+../archive/FILE.md
+./SAME-DIR-FILE.md
+
+# From docs/archive/ to root
+../../README.md
+../../package.json
+
+# From docs/archive/ to apps/
+../../apps/api/wrangler.toml
+```
