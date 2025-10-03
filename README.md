@@ -7,6 +7,16 @@ Enterprise-grade Telegram affiliate marketing platform with multi-level commissi
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare)](https://workers.cloudflare.com/)
 [![Vue 3](https://img.shields.io/badge/Vue-3.0-4FC08D?logo=vue.js)](https://vuejs.org/)
 
+## 🎯 Cursor AI Enhanced
+
+This project uses **6 comprehensive Cursor rules** (28.8KB) for consistent development:
+- 📚 Documentation structure & linking standards
+- ⚡ Bun-first development practices  
+- 🏗️ Code quality & architecture patterns
+- ☁️ Cloudflare Workers deployment guide
+
+See [`.cursor/README.md`](./.cursor/README.md) for details.
+
 ## ✨ Features
 
 ### 🎯 Core Features
