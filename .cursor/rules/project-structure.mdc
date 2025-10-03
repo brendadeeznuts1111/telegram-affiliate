@@ -9,6 +9,34 @@ description: Project structure, monorepo organization, and file placement guidel
 
 This is a **Bun workspace monorepo** managed by TurboRepo. See [package.json](mdc:package.json) and [turbo.json](mdc:turbo.json).
 
+## Root Directory Files
+
+The repository root contains **configuration files required by tools**. This is standard for modern monorepos and should NOT be "cleaned up" by moving to subdirectories.
+
+### Required Configuration Files (Must Stay in Root)
+- `package.json` - Workspace & dependency management
+- `tsconfig.json` - TypeScript compiler settings
+- `bunfig.toml` - Bun runtime configuration
+- `turbo.json` - TurboRepo task pipeline
+- `playwright.config.ts` - E2E test configuration
+- `vitest.config.ts` - Unit test configuration
+- `.gitignore` - Git exclusions
+- `.gitattributes` - Git file handling
+
+### Docker Files (Deployment)
+- `Dockerfile` - Container image definition
+- `docker-compose.yml` - Production orchestration
+- `docker-compose.dev.yml` - Local development setup
+
+### Documentation & Examples
+- `README.md` - Primary project documentation
+- `env.example` - Environment variable template
+
+### Lock & Generated Files
+- `bun.lock` - Dependency lock file (do not modify manually)
+
+**Note:** Tools like Playwright, Vitest, and TurboRepo expect their configs in the repository root. Moving them breaks tooling unless you update all scripts and CI/CD pipelines. **Keep root configs where they are.**
+
 ## Directory Structure
 
 ### 📁 src/

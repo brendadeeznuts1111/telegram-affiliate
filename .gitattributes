@@ -1,0 +1,21 @@
+# Linguist overrides for GitHub language detection
+*.md linguist-detectable=true
+*.md linguist-documentation=false
+
+# Mark vendor/generated directories
+.cursor/** linguist-documentation
+node_modules/** linguist-vendored
+bun.lock linguist-generated=true
+
+# Mark test/config files appropriately  
+*.config.ts linguist-language=TypeScript
+*.config.js linguist-language=JavaScript
+test/** linguist-detectable=false
+e2e/** linguist-detectable=false
+
+# Ensure proper language detection
+apps/**/src/**/*.ts linguist-detectable=true
+apps/**/src/**/*.vue linguist-detectable=true
+src/**/*.ts linguist-detectable=true
+packages/**/*.ts linguist-detectable=true
+
