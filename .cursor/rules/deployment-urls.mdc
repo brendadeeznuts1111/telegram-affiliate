@@ -1,0 +1,335 @@
+---
+alwaysApply: true
+description: Standards for managing deployment URLs and preventing broken links in documentation
+---
+
+# Deployment URL Management Standards
+
+## Critical Rule: Never Document URLs Until Deployed
+
+**⚠️ NEVER add deployment URLs to README, package.json, or GitHub About until the service is actually deployed and verified working.**
+
+This prevents broken links and confusion for users.
+
+## Deployment Status Documentation
+
+### Use Deployment Badges
+
+Always use status badges to show what's actually deployed:
+
+```markdown
+## 🚀 Deployment Status
+
+| Service | Status | URL |
+|---------|--------|-----|
+| **Dashboard** | [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Deployed-orange?logo=cloudflare)](https://telegram-affiliate-dashboard.pages.dev) | [telegram-affiliate-dashboard.pages.dev](https://telegram-affiliate-dashboard.pages.dev) |
+| **API** | [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Deployed-orange?logo=cloudflare)](https://api.example.com) | [api.example.com](https://api.example.com) |
+| **Bot** | [![Telegram](https://img.shields.io/badge/Telegram-Running-blue?logo=telegram)](https://t.me/yourbot) | [@yourbot](https://t.me/yourbot) |
+```
+
+**Benefits:**
+- Users know what's actually live
+- No broken links
+- Clear deployment status
+- Professional appearance
+
+### Deployment Checklist
+
+Before adding a URL to any documentation:
+
+- [ ] Service is deployed and accessible
+- [ ] URL returns 200 OK (not 404 or 502)
+- [ ] DNS is configured (if using custom domain)
+- [ ] SSL certificate is valid
+- [ ] CI/CD is set up for automatic deployments
+- [ ] Deployment badge is added to README
+- [ ] URL is added to package.json `homepage` field
+- [ ] GitHub About is updated with verified URL
+
+## GitHub Repository About Settings
+
+### Homepage Field Rules
+
+```json
+// package.json
+{
+  // ❌ DON'T: Add undeployed URLs
+  "homepage": "https://my-app.pages.dev"  // Not deployed yet
+  
+  // ✅ DO: Use GitHub until deployed
+  "homepage": "https://github.com/username/repo#readme"
+  
+  // ✅ DO: Add after deployment is verified
+  "homepage": "https://my-app.pages.dev"  // After confirming it works
+}
+```
+
+### GitHub About Priority
+
+1. **Until deployed:** Use GitHub repo URL
+2. **After deployment:** Use production URL
+3. **Multiple services:** Use main user-facing URL (dashboard > API)
+4. **Custom domain:** Use custom domain, not `.pages.dev`
+
+Example progression:
+
+```
+# Phase 1: Development
+Homepage: https://github.com/username/telegram-affiliate#readme
+
+# Phase 2: Dashboard Deployed
+Homepage: https://telegram-affiliate-dashboard.pages.dev
+
+# Phase 3: Custom Domain
+Homepage: https://affiliate.example.com
+```
+
+## CI/CD for Automatic Deployments
+
+### Required Workflows
+
+Always set up GitHub Actions for automatic deployments:
+
+**.github/workflows/deploy-dashboard.yml**
+```yaml
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/dashboard/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: your-project-name
+          directory: dist
+```
+
+**.github/workflows/deploy-api.yml**
+```yaml
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+```
+
+**Benefits:**
+- Automatic deployments on push
+- No manual deployment needed
+- Always up-to-date
+- Less chance of forgetting to deploy
+
+## README Deployment Section
+
+### Template
+
+```markdown
+## 🚀 Deployment
+
+### Production
+
+| Service | Status | URL |
+|---------|--------|-----|
+| Dashboard | ![Status](badge-url) | [Link](https://...) |
+| API | ![Status](badge-url) | [Link](https://...) |
+
+### Preview Deployments
+
+- **Pull Requests**: Auto-deployed to Cloudflare Pages previews
+- **Staging Branch**: [staging.example.com](https://staging.example.com)
+
+### Deployment Process
+
+This project uses automatic deployments via GitHub Actions:
+
+- **Dashboard**: Cloudflare Pages (deploys on push to `main`)
+- **API**: Cloudflare Workers (deploys on push to `main`)
+- **Bot**: Manual deployment to VPS (polling mode)
+
+See [deployment guide](./docs/deployment/PHASE-2-DEPLOYMENT-GUIDE.md) for details.
+```
+
+## Documentation References
+
+### Before Deployment
+
+Use placeholder text:
+
+```markdown
+## Live Demo
+
+**Coming Soon!** The dashboard is not yet deployed. See [Quick Start](#quick-start) to run locally.
+```
+
+### After Deployment
+
+Update with actual links:
+
+```markdown
+## Live Demo
+
+Try the live dashboard: [telegram-affiliate-dashboard.pages.dev](https://telegram-affiliate-dashboard.pages.dev)
+
+**Note:** This is a demo instance. Do not use for production.
+```
+
+## Common Mistakes to Avoid
+
+### ❌ DON'T
+
+```markdown
+# README.md
+
+## Live Demo
+Visit: https://my-app.pages.dev  ← Not deployed yet!
+
+# package.json
+{
+  "homepage": "https://not-deployed.com"  ← Broken link!
+}
+
+# .github/DESCRIPTION.md
+Website: https://example.com  ← Domain not set up!
+```
+
+### ✅ DO
+
+```markdown
+# README.md
+
+## Live Demo
+
+**Status:** Not yet deployed
+
+To run locally:
+\`\`\`bash
+bun run dev
+\`\`\`
+
+# package.json
+{
+  "homepage": "https://github.com/username/repo#readme"  ← Works!
+}
+
+# .github/DESCRIPTION.md
+Website: https://github.com/username/repo  ← Always works!
+
+## After deployment:
+
+## 🚀 Deployment Status
+
+| Service | Status |
+|---------|--------|
+| Dashboard | [![Deployed](badge)](https://actual-url.com) |
+```
+
+## Cloudflare Pages URL Patterns
+
+### Project Name = URL
+
+```
+Project Name: telegram-affiliate-dashboard
+URL: https://telegram-affiliate-dashboard.pages.dev
+```
+
+**Common mistake:**
+```
+Project Name: telegram-affiliate-dashboard
+Wrong URL: https://telegram-affiliate.pages.dev  ← Missing "-dashboard"!
+```
+
+### Always verify the actual URL:
+
+1. Deploy to Cloudflare Pages
+2. Check the deployment output for actual URL
+3. Visit the URL to confirm it works
+4. Only then add to documentation
+
+## Environment-Specific URLs
+
+Document all environments clearly:
+
+```markdown
+## Environments
+
+| Environment | URL | Purpose |
+|-------------|-----|---------|
+| **Production** | [app.example.com](https://app.example.com) | Live production |
+| **Staging** | [staging.example.com](https://staging.example.com) | Pre-production testing |
+| **Preview** | Auto-generated | PR previews |
+| **Local** | http://localhost:3000 | Development |
+```
+
+## Verification Script
+
+Create a script to verify all URLs in documentation:
+
+**scripts/verify-urls.ts**
+```typescript
+#!/usr/bin/env bun
+
+const urls = [
+  "https://telegram-affiliate-dashboard.pages.dev",
+  "https://api.example.com",
+];
+
+console.log("🔍 Verifying deployment URLs...\n");
+
+for (const url of urls) {
+  try {
+    const response = await fetch(url);
+    const status = response.ok ? "✅" : "❌";
+    console.log(`${status} ${url} - ${response.status}`);
+  } catch (error) {
+    console.log(`❌ ${url} - Failed to fetch`);
+  }
+}
+```
+
+Run before updating documentation:
+```bash
+bun run scripts/verify-urls.ts
+```
+
+## Rule Summary
+
+**The Golden Rule:** If it's not deployed and verified, it doesn't go in the documentation.
+
+**Checklist:**
+1. ✅ Deploy first
+2. ✅ Verify it works
+3. ✅ Add status badge
+4. ✅ Document the URL
+5. ✅ Set up CI/CD
+6. ✅ Add to GitHub About
+
+**Never:**
+- ❌ Add URLs before deployment
+- ❌ Guess what the URL will be
+- ❌ Forget to verify URLs work
+- ❌ Leave broken links in documentation
+
+**Always:**
+- ✅ Use GitHub repo URL until deployed
+- ✅ Add deployment status badges
+- ✅ Verify URLs before documenting
+- ✅ Set up automatic deployments
+- ✅ Keep documentation in sync with reality

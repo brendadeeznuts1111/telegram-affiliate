@@ -1,6 +1,6 @@
 # Cursor Rules for Telegram Affiliate Bot
 
-This directory contains **9 comprehensive Cursor Rules** (60+ KB total) that guide AI-assisted development for this project.
+This directory contains **10 comprehensive Cursor Rules** (68+ KB total) that guide AI-assisted development for this project.
 
 ## 📋 Available Rules
 
@@ -104,9 +104,21 @@ This directory contains **9 comprehensive Cursor Rules** (60+ KB total) that gui
 - 🎯 Why 25-30 root files is NORMAL for monorepos
 - 💡 Use .gitattributes instead of moving config files
 
+### 10. **deployment-urls.mdc** (8.5KB) 🆕 NEW
+**Applies:** Always  
+**Purpose:** Prevent broken deployment links in documentation
+
+- ⚠️ Never document URLs until actually deployed
+- ✅ Use deployment status badges
+- 📋 Deployment checklist before adding URLs
+- 🔄 CI/CD for automatic deployments
+- 🔍 URL verification scripts
+- 📊 Deployment status documentation
+- 🚫 Common URL mistakes to avoid
+
 ## 🎯 How Rules Are Applied
 
-### Always Applied (8 rules)
+### Always Applied (9 rules)
 These rules are **automatically included** in every AI conversation:
 - `documentation-structure.mdc` ⭐ UPDATED
 - `project-structure.mdc` ⭐ UPDATED
@@ -116,6 +128,7 @@ These rules are **automatically included** in every AI conversation:
 - `github-optimization.mdc` 🆕 NEW
 - `package-metadata.mdc` 🆕 NEW
 - `repository-hygiene.mdc` 🆕 NEW
+- `deployment-urls.mdc` 🆕 NEW
 
 ### Context-Specific (1 rule)
 This rule applies **only when editing specific file types**:
@@ -132,7 +145,8 @@ No manual rules currently defined.
 | **Code Quality** | 2 | 12.1KB | - |
 | **Project Setup** | 2 | 16.0KB | 1 updated, 1 new |
 | **GitHub & Metadata** | 2 | 24.3KB | 2 new |
-| **Total** | **9** | **60.4KB** | 🚀 Enhanced! |
+| **Deployment** | 2 | 15.3KB | 1 existing, 1 new |
+| **Total** | **10** | **68.9KB** | 🚀 Enhanced! |
 
 ## 🔧 Adding New Rules
 
@@ -205,16 +219,17 @@ cursor .cursor/rules/code-standards.mdc
 ---
 
 **Last Updated:** October 3, 2025  
-**Total Rules:** 9 (60.4KB) - 50% larger!  
-**Status:** ✅ Enhanced with GitHub optimization & repository hygiene  
+**Total Rules:** 10 (68.9KB) - 60% larger!  
+**Status:** ✅ Enhanced with GitHub optimization, repository hygiene & deployment URL management  
 **Project:** Telegram Affiliate Bot
 
 ## 🚀 What's New (October 3, 2025)
 
-### 🆕 New Rules (3)
+### 🆕 New Rules (4)
 - **github-optimization.mdc** - Professional README, .gitattributes, SEO
 - **package-metadata.mdc** - Comprehensive package.json standards
 - **repository-hygiene.mdc** - What NOT to move/delete, cleanup best practices
+- **deployment-urls.mdc** - Prevent broken links, deployment status badges
 
 ### ⭐ Updated Rules (2)
 - **documentation-structure.mdc** - Added .github/ directory organization
