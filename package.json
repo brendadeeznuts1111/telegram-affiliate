@@ -40,7 +40,7 @@
     "dev:api": "bun --filter=api dev",
     "dev:ui": "bun --filter=dashboard dev",
     "build": "bun run --filter='*' build",
-    "build:ui": "bun --filter=dashboard build",
+    "build:ui": "cd apps/dashboard && bun run build",
     "start:api": "bun --filter=api start",
     "start:dashboard": "bun --filter=dashboard preview",
     "deploy:api:staging": "bun --filter=api deploy:staging",
