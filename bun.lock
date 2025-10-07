@@ -67,6 +67,25 @@
         "typescript": "^5.0.0",
       },
     },
+    "packages/database": {
+      "name": "@affiliate/database",
+      "version": "1.0.0",
+      "dependencies": {
+        "@affiliate/errors": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.0.0",
+      },
+    },
+    "packages/errors": {
+      "name": "@affiliate/errors",
+      "version": "1.0.0",
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.0.0",
+      },
+    },
     "packages/schemas": {
       "name": "@affiliate/schemas",
       "version": "1.0.0",
@@ -77,6 +96,10 @@
   },
   "packages": {
     "@affiliate/config": ["@affiliate/config@workspace:packages/config"],
+
+    "@affiliate/database": ["@affiliate/database@workspace:packages/database"],
+
+    "@affiliate/errors": ["@affiliate/errors@workspace:packages/errors"],
 
     "@affiliate/schemas": ["@affiliate/schemas@workspace:packages/schemas"],
 
