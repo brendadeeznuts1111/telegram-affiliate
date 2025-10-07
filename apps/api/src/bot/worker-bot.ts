@@ -1,9 +1,12 @@
 /**
  * Worker Bot Instance
  * Grammy bot configured for Cloudflare Workers with D1
+ * Uses unified database abstraction from @affiliate/database
  */
 
 import { Bot, webhookCallback, Context } from 'grammy';
+import { createDatabase, UserRepository, CustomerRepository, CommissionRepository, DepositRepository } from '@affiliate/database';
+import type { IDatabaseAdapter } from '@affiliate/database';
 
 // Type for our custom context with D1 and environment
 export interface WorkerContext extends Context {
@@ -15,6 +18,11 @@ export interface WorkerContext extends Context {
     PUBLIC_URL?: string;
     TELEGRAM_BOT_USERNAME?: string;
   };
+  db: IDatabaseAdapter;
+  userRepository: UserRepository;
+  customerRepository: CustomerRepository;
+  commissionRepository: CommissionRepository;
+  depositRepository: DepositRepository;
 }
 
 /**
@@ -23,15 +31,33 @@ export interface WorkerContext extends Context {
 export function createWorkerBot(env: WorkerContext['env']): Bot<WorkerContext> {
   const bot = new Bot<WorkerContext>(env.BOT_TOKEN);
 
-  // Attach environment to context
+  // Create D1 database adapter
+  const db = createDatabase({
+    type: 'd1',
+    database: env.DB,
+  });
+
+  // Create repository instances
+  const userRepository = new UserRepository(db);
+  const customerRepository = new CustomerRepository(db);
+  const commissionRepository = new CommissionRepository(db);
+  const depositRepository = new DepositRepository(db);
+
+  // Attach environment and repositories to context
   bot.use(async (ctx, next) => {
     ctx.env = env;
+    ctx.db = db;
+    ctx.userRepository = userRepository;
+    ctx.customerRepository = customerRepository;
+    ctx.commissionRepository = commissionRepository;
+    ctx.depositRepository = depositRepository;
     await next();
   });
 
   // Import and register handlers
   registerCommands(bot);
   registerCallbacks(bot);
+  registerMessages(bot);
 
   return bot;
 }
@@ -83,6 +109,21 @@ function registerCallbacks(bot: Bot<WorkerContext>) {
 
     const { callbackHandler } = await import('./handlers/callback.handler');
     return callbackHandler(ctx);
+  });
+}
+
+/**
+ * Register message handlers
+ */
+function registerMessages(bot: Bot<WorkerContext>) {
+  // Handle text messages (for customer data input, etc.)
+  bot.on('message:text', async (ctx) => {
+    // Skip if it's a command
+    if (ctx.message.text?.startsWith('/')) return;
+    
+    // Import and use message handler if needed
+    // For now, just log
+    console.log('Received text message:', ctx.message.text);
   });
 }
 

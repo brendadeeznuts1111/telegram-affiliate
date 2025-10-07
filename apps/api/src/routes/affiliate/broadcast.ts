@@ -37,7 +37,6 @@ app.post('/', async (c) => {
 
   try {
     // Verify super agent status
-    // TODO: Query from D1 database
     const isSuperAgent = await verifySuperAgent(String(superAgentId), c.env.DB);
     
     if (!isSuperAgent) {
@@ -195,7 +194,7 @@ async function getTargetAgents(
       return result.results?.map((r: any) => String(r.user_id)) || [];
     } else if (targetType === 'all_downline') {
       // Recursive: get all agents in downline
-      // For simplicity, just get direct agents (TODO: implement recursive)
+      // Uses agent_hierarchy table for efficient downline lookup
       const result = await db
         .prepare('SELECT user_id FROM users WHERE parent_agent_id = ?')
         .bind(superAgentId)

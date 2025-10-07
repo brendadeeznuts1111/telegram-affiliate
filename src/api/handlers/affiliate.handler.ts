@@ -5,8 +5,7 @@
 
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from '@/types/context';
-import { userRepository } from '@/repositories/user.repository';
-import { commissionRepository } from '@/repositories/commission.repository';
+import { userRepository, commissionRepository } from '@/core/bot-database';
 import { logger } from '@/utils/logger';
 import { isAgent } from '@/types/user';
 import { config } from '@/core/config';
@@ -19,18 +18,18 @@ export async function dashboardHandler(ctx: BotContext) {
   if (!user) return;
 
   try {
-    const dbUser = userRepository.getById(user.id);
+    const dbUser = await userRepository.getById(user.id);
     if (!dbUser || !isAgent(dbUser)) {
       await ctx.reply('❌ You need to be an agent to access the dashboard.');
       return;
     }
 
-    const stats = userRepository.getAgentStats(user.id);
+    const stats = await userRepository.getAgentStats(user.id);
     const botUsername = ctx.me.username;
     const affiliateLink = `https://t.me/${botUsername}?start=ref${user.id}`;
     
     // Get pending vs paid commissions
-    const pendingCommissions = commissionRepository.getPendingByAgent(user.id);
+    const pendingCommissions = await commissionRepository.getPendingByAgent(user.id);
     const pendingAmount = pendingCommissions.reduce((sum, c) => sum + c.amount, 0);
     
     const statusEmoji = dbUser.is_super_agent ? '👑' : '🤝';
@@ -78,13 +77,13 @@ export async function withdrawHandler(ctx: BotContext) {
   if (!user) return;
 
   try {
-    const dbUser = userRepository.getById(user.id);
+    const dbUser = await userRepository.getById(user.id);
     if (!dbUser || !isAgent(dbUser)) {
       await ctx.reply('❌ You need to be an agent to withdraw earnings.');
       return;
     }
 
-    const stats = userRepository.getAgentStats(user.id);
+    const stats = await userRepository.getAgentStats(user.id);
     const minWithdrawal = parseFloat(Bun.env.MIN_WITHDRAWAL || '10');
 
     if (stats.commission < minWithdrawal) {
@@ -124,25 +123,25 @@ export async function superHandler(ctx: BotContext) {
   if (!user) return;
 
   try {
-    const dbUser = userRepository.getById(user.id);
+    const dbUser = await userRepository.getById(user.id);
     
     if (!dbUser || !dbUser.is_super_agent) {
       await ctx.reply('❌ This command is only available to Super Agents.');
       return;
     }
 
-    const subAgents = userRepository.getSubAgents(user.id);
-    const stats = userRepository.getAgentStats(user.id);
+    const subAgents = await userRepository.getSubAgents(user.id);
+    const stats = await userRepository.getAgentStats(user.id);
     
     // Calculate total override (super agent earns from sub-agents)
     let totalOverride = 0;
-    const subAgentsList = subAgents.map((agent, idx) => {
-      const agentStats = userRepository.getAgentStats(agent.user_id);
+    const subAgentsList = await Promise.all(subAgents.map(async (agent, idx) => {
+      const agentStats = await userRepository.getAgentStats(agent.user_id);
       const override = agentStats.commission * 0.5; // 50% override
       totalOverride += override;
       
       return `${idx + 1}. ${agent.first_name}: ${agentStats.customers} customers, ${config.commission.currency}${override.toFixed(2)} override`;
-    });
+    }));
 
     const keyboard = new InlineKeyboard()
       .text('📢 Broadcast Message', 'broadcast_message')
@@ -176,7 +175,7 @@ export async function qrHandler(ctx: BotContext) {
   if (!user) return;
 
   try {
-    const dbUser = userRepository.getById(user.id);
+    const dbUser = await userRepository.getById(user.id);
     if (!dbUser || !isAgent(dbUser)) {
       await ctx.reply('❌ You need to be an agent to generate QR codes.');
       return;

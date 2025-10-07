@@ -1,47 +1,45 @@
 /**
  * /start Command Handler (Worker Version)
- * Handles user registration and referral tracking with D1
+ * Handles user registration and referral tracking with unified database abstraction
  */
 
 import { InlineKeyboard } from 'grammy';
 import type { WorkerContext } from '../worker-bot';
-import { UserRepositoryD1 } from '../repositories/user.repository.d1';
 
 export async function startHandler(ctx: WorkerContext) {
   const user = ctx.from;
   if (!user) return;
 
-  const userRepo = new UserRepositoryD1(ctx.env.DB);
+  const userRepository = ctx.userRepository;
 
   try {
     // Check if user exists
-    let dbUser = await userRepo.getByTelegramId(user.id);
+    let dbUser = await userRepository.getById(user.id);
 
     // Extract referral code from start parameter
     const startPayload = ctx.match;
-    let referrerId: number | undefined;
+    let parentAgentId: number | undefined;
 
     if (startPayload && typeof startPayload === 'string') {
       const match = startPayload.match(/^ref(\d+)$/);
       if (match) {
-        referrerId = parseInt(match[1], 10);
+        parentAgentId = parseInt(match[1], 10);
       }
     }
 
     // If new user, create account
     if (!dbUser) {
-      dbUser = await userRepo.create({
-        telegram_id: user.id,
-        username: user.username,
+      dbUser = await userRepository.create({
+        user_id: user.id,
+        username: user.username || null,
         first_name: user.first_name,
-        last_name: user.last_name,
-        parent_agent_id: referrerId,
+        last_name: user.last_name || null,
       });
 
-      console.log(`New user created: ${user.id}${referrerId ? ` (referred by ${referrerId})` : ''}`);
+      console.log(`New user created: ${user.id}${parentAgentId ? ` (referred by ${parentAgentId})` : ''}`);
 
       // Make them an agent automatically
-      await userRepo.makeAgent(user.id);
+      await userRepository.makeAgent(user.id, parentAgentId);
 
       // Send welcome message for new user
       await ctx.reply(
@@ -55,8 +53,8 @@ export async function startHandler(ctx: WorkerContext) {
       );
     }
 
-    // Check if user is an agent
-    const isAgent = await userRepo.isAgent(user.id);
+    // Get agent status
+    const isAgent = dbUser.is_agent === 1;
 
     if (isAgent) {
       // Agent menu with WebApp button
@@ -65,14 +63,14 @@ export async function startHandler(ctx: WorkerContext) {
                        'https://telegram-affiliate-dashboard.pages.dev';
 
       const keyboard = new InlineKeyboard()
-        .webApp('📊 Open Dashboard', pagesUrl) // ← Mini App button!
+        .webApp('📊 Open Dashboard', pagesUrl)
         .row()
         .text('🔗 Get Link', 'get_link')
         .text('📱 Get QR', 'get_qr')
         .row()
         .text('💸 Withdraw', 'withdraw');
 
-      const stats = await userRepo.getAgentStats(user.id);
+      const stats = await userRepository.getAgentStats(user.id);
       const affiliateLink = `https://t.me/${botUsername}?start=ref${user.id}`;
 
       const statusEmoji = dbUser.is_super_agent ? '👑' : '🤝';
