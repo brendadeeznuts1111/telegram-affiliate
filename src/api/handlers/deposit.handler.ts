@@ -346,12 +346,9 @@ export async function depositCallbackHandler(ctx: BotContext) {
         break;
 
       case 'view_commissions':
-        // This will be implemented in Phase 1.5
-        await ctx.reply(
-          '📊 *Commissions*\n\n' +
-          'Commission tracking coming in Phase 1.5!\n\n' +
-          'Use /commissions to view your earnings.'
-        );
+        // Redirect to commissions handler (imported dynamically to avoid circular deps)
+        const { commissionsHandler } = await import('./commission.handler');
+        await commissionsHandler(ctx);
         break;
 
       case 'refresh_deposits':
