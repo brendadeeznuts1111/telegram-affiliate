@@ -103,7 +103,7 @@
     "playwright": "^1.40.0",
     "prettier": "^3.6.2",
     "turbo": "^2.0.0",
-    "typescript": "^5.0.0",
+    "typescript": "^5.9.3",
     "vitest": "^1.0.0",
     "wrangler": "^3.57.0"
   },
