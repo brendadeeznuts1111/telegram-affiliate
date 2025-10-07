@@ -11,7 +11,7 @@ import { isAgent } from '@/types/user';
 import { config } from '@/core/config';
 
 /**
- * /dashboard - Enhanced affiliate dashboard
+ * /dashboard - Enhanced affiliate dashboard with recent activities
  */
 export async function dashboardHandler(ctx: BotContext) {
   const user = ctx.from;
@@ -28,33 +28,60 @@ export async function dashboardHandler(ctx: BotContext) {
     const botUsername = ctx.me.username;
     const affiliateLink = `https://t.me/${botUsername}?start=ref${user.id}`;
     
-    // Get pending vs paid commissions
-    const pendingCommissions = await commissionRepository.getPendingByAgent(user.id);
+    // Get commission data
+    const allCommissions = await commissionRepository.getByAgent(user.id);
+    const pendingCommissions = allCommissions.filter(c => c.status === 'pending');
+    const paidCommissions = allCommissions.filter(c => c.status === 'paid');
     const pendingAmount = pendingCommissions.reduce((sum, c) => sum + c.amount, 0);
+    const paidAmount = paidCommissions.reduce((sum, c) => sum + c.amount, 0);
     
     const statusEmoji = dbUser.is_super_agent ? '👑' : '🤝';
     const statusText = dbUser.is_super_agent ? 'Super Agent' : 'Agent';
 
+    // Get recent activities (last 3 commissions)
+    const recentCommissions = allCommissions.slice(-3).reverse();
+    let activitiesText = '';
+    
+    if (recentCommissions.length > 0) {
+      activitiesText = '\n📋 *Recent Activity:*\n';
+      recentCommissions.forEach(comm => {
+        const statusIcon = comm.status === 'paid' ? '✅' : '⏳';
+        const date = new Date(comm.created_at * 1000).toLocaleDateString();
+        activitiesText += `${statusIcon} $${comm.amount.toFixed(2)} - ${date}\n`;
+      });
+    }
+
+    // Create comprehensive keyboard with all key actions
     const keyboard = new InlineKeyboard()
+      .text('💰 Record Deposit', 'record_deposit')
+      .text('➕ Add Customer', 'add_customer')
+      .row()
+      .text('💵 View Commissions', 'view_commissions')
+      .text('📋 View Customers', 'view_customers')
+      .row()
       .text('🔗 Get Link', 'get_link')
-      .text('📱 Get QR', 'get_qr').row()
-      .text('💸 Withdraw', 'withdraw')
-      .text('🔄 Refresh', 'refresh_dashboard');
+      .text('📱 Get QR', 'get_qr')
+      .row();
 
     if (dbUser.is_super_agent) {
-      keyboard.row().text('👑 Super Panel', 'super_panel');
+      keyboard.text('👑 Super Panel', 'super_panel');
     }
+    
+    keyboard.text('🔄 Refresh', 'refresh_dashboard');
 
     await ctx.reply(
       `${statusEmoji} *Your Affiliate Dashboard*\n\n` +
       `📊 *Status:* ${statusText}\n` +
       `👥 *Customers:* ${stats.customers}\n` +
-      `🤝 *Sub-Agents:* ${stats.sub_agents}\n\n` +
-      `💰 *Earnings:*\n` +
-      `  • Paid: ${config.commission.currency}${stats.commission.toFixed(2)}\n` +
-      `  • Pending: ${config.commission.currency}${pendingAmount.toFixed(2)}\n\n` +
-      `🔗 *Your Link:*\n\`${affiliateLink}\`\n\n` +
-      `_Share to earn commissions!_`,
+      `🤝 *Sub-Agents:* ${stats.sub_agents || 0}\n\n` +
+      `💰 *Earnings Summary:*\n` +
+      `  • Total: ${config.commission.currency}${(paidAmount + pendingAmount).toFixed(2)}\n` +
+      `  • Paid: ${config.commission.currency}${paidAmount.toFixed(2)}\n` +
+      `  • Pending: ${config.commission.currency}${pendingAmount.toFixed(2)}\n` +
+      `  • Commissions: ${allCommissions.length} (${paidCommissions.length} paid)\n` +
+      activitiesText +
+      `\n🔗 *Your Affiliate Link:*\n\`${affiliateLink}\`\n\n` +
+      `_Share your link to grow your network!_`,
       { 
         reply_markup: keyboard, 
         parse_mode: 'Markdown',

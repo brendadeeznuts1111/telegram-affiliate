@@ -30,6 +30,7 @@ export async function callbackHandler(ctx: BotContext) {
         break;
 
       case 'dashboard':
+      case 'refresh_dashboard':
         await handleDashboard(ctx, user);
         break;
 
@@ -44,6 +45,12 @@ export async function callbackHandler(ctx: BotContext) {
       case 'add_customer':
         // Now handled by customer.handler
         await ctx.conversation.enter('addCustomerConversation');
+        break;
+
+      case 'view_customers':
+        // Redirect to customers list
+        const { listCustomersHandler } = await import('./customer.handler');
+        await listCustomersHandler(ctx);
         break;
 
       default:
@@ -79,30 +86,9 @@ async function handleBecomeAgent(ctx: BotContext, user: any) {
 }
 
 async function handleDashboard(ctx: BotContext, user: any) {
-  const userId = ctx.from!.id;
-  
-  // Re-fetch user to get latest status (in case they just became an agent)
-  const currentUser = userRepository.getById(userId);
-  
-  if (!currentUser || !isAgent(currentUser)) {
-    await ctx.reply("You need to be an agent to access the dashboard.");
-    return;
-  }
-
-  const stats = userRepository.getAgentStats(userId);
-
-  const statusEmoji = currentUser.is_super_agent ? '⭐' : '🤝';
-  const statusText = currentUser.is_super_agent ? 'Super Agent' : 'Agent';
-
-  await ctx.reply(
-    `📊 *Your Dashboard*\n\n` +
-    `${statusEmoji} Status: ${statusText}\n\n` +
-    `👥 Total Customers: ${stats.customers}\n` +
-    `💰 Total Commission: ${config.commission.currency}${stats.commission.toFixed(2)}\n` +
-    `🤝 Sub-Agents: ${stats.sub_agents}\n\n` +
-    `Your Agent ID: \`${userId}\``,
-    { parse_mode: 'Markdown' }
-  );
+  // Use the enhanced dashboard handler
+  const { dashboardHandler } = await import('./affiliate.handler');
+  await dashboardHandler(ctx);
 }
 
 async function handleGetLink(ctx: BotContext, user: any) {
