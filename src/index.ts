@@ -47,9 +47,16 @@ import {
   listCustomersHandler,
   customerCallbackHandler,
 } from './api/handlers/customer.handler';
+import {
+  depositHandler,
+  depositConversation,
+  listDepositsHandler,
+  depositCallbackHandler,
+} from './api/handlers/deposit.handler';
 
 // Register conversations
 bot.use(createConversation(addCustomerConversation));
+bot.use(createConversation(depositConversation));
 
 // Register command handlers
 bot.command('start', startHandler);
@@ -63,6 +70,10 @@ bot.command('qr', qrHandler);
 // Customer commands
 bot.command('addcustomer', addCustomerHandler);
 bot.command('customers', listCustomersHandler);
+
+// Deposit commands
+bot.command('deposit', depositHandler);
+bot.command('deposits', listDepositsHandler);
 
 // Level system commands (available to all agents)
 bot.command('level', levelHandler);
@@ -102,8 +113,19 @@ bot.on('callback_query:data', async (ctx, next) => {
 bot.on('callback_query:data', async (ctx, next) => {
   const data = ctx.callbackQuery?.data;
   if (data === 'add_customer' || data === 'view_customers' || data === 'refresh_customers' ||
-      data === 'confirm_customer' || data === 'cancel_customer' || data?.startsWith('deposit_')) {
+      data === 'confirm_customer' || data === 'cancel_customer') {
     await customerCallbackHandler(ctx);
+  } else {
+    await next();
+  }
+});
+
+// Deposit callbacks
+bot.on('callback_query:data', async (ctx, next) => {
+  const data = ctx.callbackQuery?.data;
+  if (data === 'record_deposit' || data === 'refresh_deposits' || data === 'view_commissions' ||
+      data === 'confirm_deposit' || data === 'cancel_deposit' || data?.startsWith('select_customer_')) {
+    await depositCallbackHandler(ctx);
   } else {
     await next();
   }

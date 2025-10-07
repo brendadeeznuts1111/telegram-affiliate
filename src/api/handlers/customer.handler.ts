@@ -277,11 +277,10 @@ export async function customerCallbackHandler(ctx: BotContext) {
 
       default:
         if (data.startsWith('deposit_')) {
-          // Handle deposit for specific customer (Phase 1.2)
-          const customerId = parseInt(data.replace('deposit_', ''));
+          // Redirect to deposit flow
           await ctx.reply(
-            `💰 Deposit recording for customer ${customerId} will be available soon!\n\n` +
-            'Coming in Phase 1.2 🚀'
+            '💰 Use /deposit to record a deposit\n\n' +
+            'You can select the customer from the list!'
           );
         }
     }
