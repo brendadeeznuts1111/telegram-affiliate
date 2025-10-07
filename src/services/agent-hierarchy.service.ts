@@ -3,8 +3,7 @@
  * Manages agent relationships, overrides, and network structure
  */
 
-import { userRepository } from '@/repositories/user.repository';
-import { commissionRepository } from '@/repositories/commission.repository';
+import { userRepository, commissionRepository } from '@/core/bot-database';
 import { logger } from '@/utils/logger';
 import type { User } from '@/types/user';
 
@@ -27,7 +26,7 @@ export class AgentHierarchyService {
    */
   async registerAgent(userId: number, parentAgentId?: number): Promise<void> {
     try {
-      userRepository.makeAgent(userId, parentAgentId);
+      await userRepository.makeAgent(userId, parentAgentId);
       
       if (parentAgentId) {
         logger.info(`Agent ${userId} registered under parent ${parentAgentId}`);
@@ -45,7 +44,7 @@ export class AgentHierarchyService {
    */
   async promoteSuperAgent(userId: number): Promise<void> {
     try {
-      userRepository.makeSuperAgent(userId);
+      await userRepository.makeSuperAgent(userId);
       logger.info(`Agent ${userId} promoted to super agent`);
     } catch (error) {
       logger.error(`Failed to promote ${userId} to super agent:`, error);
@@ -56,46 +55,46 @@ export class AgentHierarchyService {
   /**
    * Check if user is a super agent
    */
-  isSuperAgent(userId: number): boolean {
-    const user = userRepository.getById(userId);
+  async isSuperAgent(userId: number): Promise<boolean> {
+    const user = await userRepository.getById(userId);
     return user?.is_super_agent === 1;
   }
 
   /**
    * Get all sub-agents for a parent (direct children only)
    */
-  getSubAgents(parentId: number): User[] {
+  async getSubAgents(parentId: number): Promise<User[]> {
     return userRepository.getSubAgents(parentId);
   }
 
   /**
    * Get sub-agents with their stats
    */
-  getSubAgentsWithStats(parentId: number): AgentWithStats[] {
-    const subAgents = this.getSubAgents(parentId);
+  async getSubAgentsWithStats(parentId: number): Promise<AgentWithStats[]> {
+    const subAgents = await this.getSubAgents(parentId);
     
-    return subAgents.map(agent => {
-      const stats = userRepository.getAgentStats(agent.user_id);
+    return Promise.all(subAgents.map(async agent => {
+      const stats = await userRepository.getAgentStats(agent.user_id);
       return {
         ...agent,
         earnings: stats.commission,
         customers: stats.customers,
         sub_agents: stats.sub_agents,
       };
-    });
+    }));
   }
 
   /**
    * Get entire downline tree (recursive)
    */
-  getDownlineTree(parentId: number, maxDepth: number = 5, currentDepth: number = 0): any {
+  async getDownlineTree(parentId: number, maxDepth: number = 5, currentDepth: number = 0): Promise<any> {
     if (currentDepth >= maxDepth) return null;
 
-    const agent = userRepository.getById(parentId);
+    const agent = await userRepository.getById(parentId);
     if (!agent) return null;
 
-    const stats = userRepository.getAgentStats(parentId);
-    const children = this.getSubAgents(parentId);
+    const stats = await userRepository.getAgentStats(parentId);
+    const children = await this.getSubAgents(parentId);
 
     return {
       user_id: agent.user_id,

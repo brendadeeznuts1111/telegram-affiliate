@@ -5,10 +5,8 @@
 
 import type { BotContext } from '@/types/context';
 import { isAdmin, config } from '@/core/config';
-import { userRepository } from '@/repositories/user.repository';
-import { customerRepository } from '@/repositories/customer.repository';
+import { userRepository, customerRepository, commissionRepository } from '@/core/bot-database';
 import { commissionService } from '@/services/commission.service';
-import { commissionRepository } from '@/repositories/commission.repository';
 import { logger } from '@/utils/logger';
 import { Validator } from '@/utils/validation';
 
@@ -29,10 +27,10 @@ export async function adminMiddleware(ctx: BotContext, next: () => Promise<void>
  */
 export async function statsHandler(ctx: BotContext) {
   try {
-    const totalUsers = userRepository.getTotalCount();
-    const totalAgents = userRepository.getTotalAgentCount();
-    const totalCustomers = customerRepository.getTotalCount();
-    const commissionStats = commissionRepository.getOverallStats();
+    const totalUsers = await userRepository.getTotalCount();
+    const totalAgents = await userRepository.getTotalAgentCount();
+    const totalCustomers = await customerRepository.getTotalCount();
+    const commissionStats = await commissionRepository.getOverallStats();
 
     await ctx.reply(
       `📊 *System Statistics*\n\n` +
@@ -59,7 +57,7 @@ export async function statsHandler(ctx: BotContext) {
  */
 export async function topAgentsHandler(ctx: BotContext) {
   try {
-    const topAgents = userRepository.getTopAgents(10);
+    const topAgents = await userRepository.getTopAgents(10);
 
     if (topAgents.length === 0) {
       await ctx.reply('No agents found.');
@@ -103,13 +101,13 @@ export async function makeSuperHandler(ctx: BotContext) {
       return;
     }
 
-    const user = userRepository.getById(userId);
+    const user = await userRepository.getById(userId);
     if (!user) {
       await ctx.reply(`User ${userId} not found.`);
       return;
     }
 
-    userRepository.makeSuperAgent(userId);
+    await userRepository.makeSuperAgent(userId);
 
     await ctx.reply(
       `✅ ${user.first_name} has been promoted to Super Agent!\n\n` +
@@ -146,13 +144,13 @@ export async function payHandler(ctx: BotContext) {
       return;
     }
 
-    const agent = userRepository.getById(agentId);
+    const agent = await userRepository.getById(agentId);
     if (!agent) {
       await ctx.reply(`Agent ${agentId} not found.`);
       return;
     }
 
-    const updated = commissionRepository.markAsPaid(agentId, count);
+    const updated = await commissionRepository.markAsPaid(agentId, count);
 
     await ctx.reply(
       `✅ Marked ${updated} commission(s) as paid for ${agent.first_name}.`
@@ -187,7 +185,7 @@ export async function broadcastHandler(ctx: BotContext) {
       return;
     }
 
-    const agents = userRepository.getAllAgents();
+    const agents = await userRepository.getAllAgents();
     
     if (agents.length === 0) {
       await ctx.reply('No agents to broadcast to.');
@@ -278,7 +276,7 @@ export async function customerPaidHandler(ctx: BotContext) {
   if (!userId) return;
 
   try {
-    const user = userRepository.getById(userId);
+    const user = await userRepository.getById(userId);
     if (!user?.is_agent) {
       await ctx.reply('⛔ This command is only available to agents.');
       return;
@@ -297,7 +295,7 @@ export async function customerPaidHandler(ctx: BotContext) {
     }
 
     // Get agent's most recent customer
-    const customers = customerRepository.getByAgent(userId);
+    const customers = await customerRepository.getByAgent(userId);
     if (customers.length === 0) {
       await ctx.reply(
         '⚠️ You have no customers yet.\n\n' +

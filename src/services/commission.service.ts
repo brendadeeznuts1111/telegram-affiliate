@@ -7,10 +7,8 @@
 import { db } from '@/core/database';
 import { config } from '@/core/config';
 import { LEVELS, EVENT_COMMISSIONS, type CommissionEvent } from '@/core/levels.config';
-import { commissionRepository } from '@/repositories/commission.repository';
-import { depositRepository } from '@/repositories/deposit.repository';
+import { commissionRepository, depositRepository, userRepository } from '@/core/bot-database';
 import { levelService } from './level.service';
-import { userRepository } from '@/repositories/user.repository';
 import { logger } from '@/utils/logger';
 
 export class EnhancedCommissionService {
@@ -43,9 +41,9 @@ export class EnhancedCommissionService {
     }
 
     // Use transaction for atomicity
-    db.transaction(() => {
+    await db.transaction(async () => {
       // 1. Record commission for direct agent
-      commissionRepository.create(
+      await commissionRepository.create(
         agentId,
         customerId,
         commissionAmount,
@@ -53,7 +51,7 @@ export class EnhancedCommissionService {
       );
 
       // Update commission event type
-      db.run(
+      await db.run(
         `UPDATE commissions 
          SET event_type = ? 
          WHERE commission_id = last_insert_rowid()`,
@@ -65,7 +63,7 @@ export class EnhancedCommissionService {
         levelService.updateNetDeposits(agentId, amount);
         
         // Record deposit
-        depositRepository.create(agentId, customerId, amount);
+        await depositRepository.create(agentId, customerId, amount);
       }
 
       if (event === 'new_user') {
@@ -73,7 +71,7 @@ export class EnhancedCommissionService {
       }
 
       // 3. Bubble commission to parent (super-agent)
-      const agent = userRepository.getById(agentId);
+      const agent = await userRepository.getById(agentId);
       if (agent?.parent_agent_id) {
         const parentLevel = levelService.getAgentLevel(agent.parent_agent_id);
         const parentBoost = parentLevel?.boost || 0;
@@ -81,7 +79,7 @@ export class EnhancedCommissionService {
         // Parent gets 50% of child's commission + their own boost
         const parentCommission = (commissionAmount * 0.5) + (amount * parentBoost / 100);
 
-        commissionRepository.create(
+        await commissionRepository.create(
           agent.parent_agent_id,
           customerId,
           parentCommission,
@@ -89,7 +87,7 @@ export class EnhancedCommissionService {
         );
 
         // Update parent commission event type
-        db.run(
+        await db.run(
           `UPDATE commissions 
            SET event_type = ? 
            WHERE commission_id = last_insert_rowid()`,
@@ -108,7 +106,7 @@ export class EnhancedCommissionService {
    */
   async recordDeposit(agentId: number, customerId: number, amount: number): Promise<void> {
     // Check if this is first deposit
-    const isFirstDeposit = !depositRepository.hasFirstDeposit(customerId);
+    const isFirstDeposit = !(await depositRepository.hasFirstDeposit(customerId));
     const event: CommissionEvent = isFirstDeposit ? 'first_deposit' : 'deposit';
 
     await this.processEvent(event, agentId, customerId, amount);

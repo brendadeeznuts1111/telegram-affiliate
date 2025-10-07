@@ -4,7 +4,7 @@
  */
 
 import type { BotContext } from '@/types/context';
-import { customerRepository } from '@/repositories/customer.repository';
+import { customerRepository } from '@/core/bot-database';
 import { Validator } from '@/utils/validation';
 import { logger } from '@/utils/logger';
 
@@ -40,7 +40,7 @@ export async function messageHandler(ctx: BotContext) {
     }
 
     // Check for duplicates
-    if (customerRepository.existsByEmail(customerData.email!)) {
+    if (await customerRepository.existsByEmail(customerData.email!)) {
       await ctx.reply(
         `⚠️ A customer with this email already exists.\n\n` +
         `Please use a different email or check your records.`
@@ -49,7 +49,7 @@ export async function messageHandler(ctx: BotContext) {
     }
 
     // Create customer
-    const customer = customerRepository.create({
+    const customer = await customerRepository.create({
       referred_by: userId,
       customer_name: customerData.name!,
       customer_phone: customerData.phone!,

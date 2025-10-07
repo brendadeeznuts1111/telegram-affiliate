@@ -5,7 +5,7 @@
 
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from '@/types/context';
-import { userRepository } from '@/repositories/user.repository';
+import { userRepository } from '@/core/bot-database';
 import { logger } from '@/utils/logger';
 import { isAgent } from '@/types/user';
 
@@ -15,11 +15,11 @@ export async function startHandler(ctx: BotContext) {
 
   try {
     // Check if user exists in database
-    let dbUser = userRepository.getById(user.id);
+    let dbUser = await userRepository.getById(user.id);
 
     // Create user if doesn't exist
     if (!dbUser) {
-      dbUser = userRepository.create({
+      dbUser = await userRepository.create({
         user_id: user.id,
         username: user.username || null,
         first_name: user.first_name,
@@ -33,7 +33,7 @@ export async function startHandler(ctx: BotContext) {
       const referrerId = parseInt(payload.substring(3), 10);
       
       if (!isNaN(referrerId) && referrerId !== user.id) {
-        const referrer = userRepository.getById(referrerId);
+        const referrer = await userRepository.getById(referrerId);
         
         if (referrer && isAgent(referrer)) {
           await ctx.reply(
