@@ -6,8 +6,7 @@
 import type { BotContext } from '@/types/context';
 import { levelService } from '@/services/level.service';
 import { commissionService } from '@/services/commission.service';
-import { userRepository } from '@/repositories/user.repository';
-import { depositRepository } from '@/repositories/deposit.repository';
+import { userRepository, depositRepository } from '@/core/bot-database';
 import { config } from '@/core/config';
 import { LEVELS } from '@/core/levels.config';
 import { logger } from '@/utils/logger';

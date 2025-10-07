@@ -5,7 +5,7 @@
 
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from '@/types/context';
-import { userRepository } from '@/repositories/user.repository';
+import { userRepository } from '@/core/bot-database';
 import { isAgent } from '@/types/user';
 import { logger } from '@/utils/logger';
 import { QRGenerator } from '@/utils/qr-generator';
