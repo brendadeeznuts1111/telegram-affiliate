@@ -168,7 +168,7 @@ wrangler pages deploy dist --project-name telegram-affiliate-dashboard
 echo ""
 echo -e "${GREEN}✅ Dashboard deployed successfully!${NC}"
 
-DASHBOARD_URL="https://telegram-affiliate-dashboard.pages.dev"
+DASHBOARD_URL="https://9053c4e4.telegram-affiliate-dashboard.pages.dev"
 echo -e "${BLUE}🌐 Dashboard URL: $DASHBOARD_URL${NC}"
 
 echo ""

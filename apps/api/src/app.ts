@@ -55,6 +55,7 @@ function getCorsOrigins(env: Record<string, string | undefined>): string[] {
     ...config.api.corsOrigins,
     'http://127.0.0.1:5175',
     'http://127.0.0.1:5173',
+    'https://9053c4e4.telegram-affiliate-dashboard.pages.dev',
     'https://telegram-affiliate-dashboard.pages.dev',
   ];
 }

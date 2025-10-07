@@ -54,13 +54,17 @@ Wrangler's esbuild cannot bundle the codebase due to `bun:sqlite` imports in the
 
 ### Steps
 
-#### 1. Deploy Dashboard
+#### 1. Deploy Dashboard ✅ **COMPLETED**
+
+**Live URL:** https://9053c4e4.telegram-affiliate-dashboard.pages.dev
 
 ```bash
 cd apps/dashboard
 bun run build
 wrangler pages deploy dist --project-name telegram-affiliate-dashboard
 ```
+
+**Status:** Successfully deployed on October 7, 2025
 
 #### 2. Deploy API (No Webhook)
 
