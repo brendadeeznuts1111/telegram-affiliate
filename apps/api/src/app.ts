@@ -12,9 +12,16 @@ import { getConfig } from '@affiliate/config';
 import userRoutes from './routes/user';
 import agentRoutes from './routes/agent';
 import healthRoutes from './routes/health';
-// import telegramRoutes from './routes/telegram'; // Temporarily disabled for Workers deployment
+import { telegram as telegramRoutes } from './routes/telegram';
 import monitoringRoutes from './routes/monitoring';
 import affiliateRoutes from './routes/affiliate';
+
+// Import new Phase 3 API routes
+import customersRoutes from './routes/customers';
+import commissionsRoutes from './routes/commissions';
+import depositsRoutes from './routes/deposits';
+import treeRoutes from './routes/tree';
+import activityRoutes from './routes/activity';
 
 // Middleware
 import { telegramAuth } from './middleware/telegram';
@@ -56,6 +63,8 @@ function getCorsOrigins(env: Record<string, string | undefined>): string[] {
     'http://127.0.0.1:5175',
     'http://127.0.0.1:5173',
     'https://9053c4e4.telegram-affiliate-dashboard.pages.dev',
+    'https://49948519.telegram-affiliate-dashboard.pages.dev',
+    'https://1234d9a3.telegram-affiliate-dashboard.pages.dev',
     'https://telegram-affiliate-dashboard.pages.dev',
   ];
 }
@@ -129,6 +138,13 @@ export function createApp() {
   app.use('/api/*', telegramAuth);
   app.route('/api/user', userRoutes);
   app.route('/api/agent', agentRoutes);
+  
+  // Phase 3 API routes (authenticated)
+  app.route('/api/customers', customersRoutes);
+  app.route('/api/commissions', commissionsRoutes);
+  app.route('/api/deposits', depositsRoutes);
+  app.route('/api/tree', treeRoutes);
+  app.route('/api/activity', activityRoutes);
 
   // Monitoring routes (public, but could add auth)
   app.route('/api/monitoring', monitoringRoutes);

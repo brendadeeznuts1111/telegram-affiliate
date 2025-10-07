@@ -6,10 +6,19 @@
  * For Workers, use D1Adapter instead.
  */
 
-// @ts-ignore - mark as external for esbuild
-import { Database } from 'bun:sqlite';
 import type { IDatabaseAdapter, DatabaseConfig, QueryResult, TransactionFn } from '../interface';
 import { DatabaseError } from '@affiliate/errors';
+
+// Dynamic import to prevent bundlers from including bun:sqlite
+// This will only work in Bun runtime, not in Workers
+let Database: any;
+try {
+  if (typeof Bun !== 'undefined') {
+    Database = require('bun:sqlite').Database;
+  }
+} catch (e) {
+  // Ignore - this adapter won't work in Workers anyway
+}
 
 export class SqliteAdapter implements IDatabaseAdapter {
   private db: Database;

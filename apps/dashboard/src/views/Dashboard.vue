@@ -1,160 +1,310 @@
 <template>
-  <div class="min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
+  <div class="p-4 space-y-6">
     <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-        Welcome, {{ tgStore.user?.firstName || 'Agent' }}! 👋
-      </h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">
-        Your affiliate dashboard
-      </p>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-tg-text">Dashboard</h1>
+        <p class="text-sm text-gray-500">Welcome back! Here's your overview.</p>
+      </div>
+      <button
+        @click="refreshData"
+        :disabled="loading"
+        class="px-4 py-2 bg-tg-button text-white rounded-lg hover:bg-opacity-90 disabled:opacity-50 flex items-center space-x-2"
+      >
+        <svg class="h-4 w-4" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Refresh</span>
+      </button>
     </div>
 
     <!-- Loading State -->
-    <div v-if="userStore.loading" class="flex items-center justify-center py-12">
-      <div class="text-center">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">Loading...</p>
+    <div v-if="loading && !stats" class="space-y-6">
+      <LoadingSkeleton type="card" />
+      <LoadingSkeleton type="chart" />
+      <LoadingSkeleton type="list" :rows="3" />
+    </div>
+
+    <!-- Stats Cards -->
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Total Earned</p>
+            <p class="text-2xl font-bold text-green-600">${{ stats?.total_earned?.toFixed(2) || '0.00' }}</p>
+          </div>
+          <div class="p-3 bg-green-100 rounded-full">
+            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Pending</p>
+            <p class="text-2xl font-bold text-yellow-600">${{ stats?.pending?.toFixed(2) || '0.00' }}</p>
+          </div>
+          <div class="p-3 bg-yellow-100 rounded-full">
+            <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Paid Out</p>
+            <p class="text-2xl font-bold text-blue-600">${{ stats?.paid_out?.toFixed(2) || '0.00' }}</p>
+          </div>
+          <div class="p-3 bg-blue-100 rounded-full">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">This Month</p>
+            <p class="text-2xl font-bold text-purple-600">${{ stats?.this_month?.toFixed(2) || '0.00' }}</p>
+          </div>
+          <div class="p-3 bg-purple-100 rounded-full">
+            <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <!-- Customers -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Customers</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-              {{ stats?.customers || 0 }}
-            </p>
-          </div>
-          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">👥</span>
-          </div>
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Earnings Chart -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Earnings Trend</h2>
+          <select
+            v-model="chartDays"
+            @change="loadChartData"
+            class="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+          >
+            <option :value="7">7 Days</option>
+            <option :value="30">30 Days</option>
+            <option :value="90">90 Days</option>
+          </select>
         </div>
+        <EarningsChart :data="chartData" :loading="chartLoading" />
       </div>
 
-      <!-- Commission -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Total Commission</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-              ${{ (stats?.commission || 0).toFixed(2) }}
-            </p>
-          </div>
-          <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">💰</span>
-          </div>
+      <!-- Activity Feed -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Recent Activity</h2>
+          <router-link to="/commissions" class="text-sm text-tg-link hover:underline">
+            View All
+          </router-link>
         </div>
-      </div>
-
-      <!-- Level -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Agent Level</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-              {{ getLevelName(stats?.level || 0) }}
-            </p>
-          </div>
-          <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">{{ getLevelEmoji(stats?.level || 0) }}</span>
-          </div>
+        <div v-if="activityLoading">
+          <LoadingSkeleton type="list" :rows="3" />
         </div>
-      </div>
-
-      <!-- Sub Agents -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Sub Agents</p>
-            <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-              {{ stats?.sub_agents || 0 }}
-            </p>
-          </div>
-          <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-lg flex items-center justify-center">
-            <span class="text-2xl">🤝</span>
+        <div v-else-if="activities.length === 0" class="text-center py-8 text-gray-500">
+          No recent activity
+        </div>
+        <div v-else class="space-y-3">
+          <div v-for="activity in activities.slice(0, 5)" :key="activity.id" class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+            <span class="text-2xl">{{ activityIcon(activity.type) }}</span>
+            <div class="flex-1">
+              <p class="text-sm font-medium">{{ activity.title }}</p>
+              <p class="text-xs text-gray-500">{{ activity.description }}</p>
+              <p class="text-xs text-gray-400 mt-1">
+                {{ formatDate(activity.timestamp) }}
+              </p>
+            </div>
+            <span v-if="activity.amount" class="text-sm font-semibold text-green-600">
+              +${{ activity.amount.toFixed(2) }}
+            </span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Quick Actions -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <router-link 
-          to="/tree"
-          class="flex items-center justify-center gap-2 p-4 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg text-blue-700 dark:text-blue-300 font-medium transition-colors"
-        >
-          <span>🌳</span>
-          <span>Agent Tree</span>
-        </router-link>
-        
-        <router-link 
-          to="/commissions"
-          class="flex items-center justify-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg text-green-700 dark:text-green-300 font-medium transition-colors"
-        >
-          <span>💵</span>
-          <span>Commissions</span>
-        </router-link>
-        
-        <button 
-          @click="refresh"
-          class="flex items-center justify-center gap-2 p-4 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg text-purple-700 dark:text-purple-300 font-medium transition-colors"
-        >
-          <span>🔄</span>
-          <span>Refresh</span>
-        </button>
-      </div>
-    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <router-link
+        to="/commissions"
+        class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-green-100 rounded-full">
+            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold">View Commissions</p>
+            <p class="text-sm text-gray-500">Track your earnings</p>
+          </div>
+        </div>
+      </router-link>
 
-    <!-- Debug Info (dev mode) -->
-    <div v-if="isDev" class="mt-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900 rounded-lg p-4">
-      <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-300 mb-2">🛠️ Debug Info</p>
-      <pre class="text-xs text-yellow-700 dark:text-yellow-400 overflow-auto">{{ {
-        user: userStore.user,
-        stats: userStore.stats,
-        tgUser: tgStore.user,
-        theme: tgStore.theme,
-      } }}</pre>
+      <router-link
+        to="/tree"
+        class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-blue-100 rounded-full">
+            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold">Agent Tree</p>
+            <p class="text-sm text-gray-500">View your network</p>
+          </div>
+        </div>
+      </router-link>
+
+      <router-link
+        to="/customers"
+        class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-purple-100 rounded-full">
+            <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold">Customers</p>
+            <p class="text-sm text-gray-500">Manage your clients</p>
+          </div>
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useUserStore } from '@/stores/user';
-import { useTelegramStore } from '@/stores/telegram';
+import { ref, onMounted } from 'vue';
+import { commissionsAPI, activityAPI } from '@/api/client';
+import { useToast } from '@/composables/useToast';
+import EarningsChart from '@/components/EarningsChart.vue';
+import LoadingSkeleton from '@/components/LoadingSkeleton.vue';
 
-const userStore = useUserStore();
-const tgStore = useTelegramStore();
+const { success, error: showError } = useToast();
 
-const stats = computed(() => userStore.stats);
-const isDev = import.meta.env.DEV;
+// State
+const loading = ref(true);
+const stats = ref<any>(null);
+const activities = ref<any[]>([]);
+const activityLoading = ref(true);
+const chartData = ref<any[]>([]);
+const chartLoading = ref(true);
+const chartDays = ref(30);
 
-const levelNames = ['Agent', 'Silver', 'Gold', 'Platinum'];
-const levelEmojis = ['🤝', '🥈', '🥇', '💎'];
+// Load data
+const loadStats = async () => {
+  try {
+    const { data } = await commissionsAPI.stats();
+    stats.value = data.stats;
+  } catch (err: any) {
+    console.error('Failed to load stats:', err);
+    showError('Failed to load statistics');
+  }
+};
 
-function getLevelName(level: number): string {
-  return levelNames[level] || 'Agent';
-}
+const loadActivities = async () => {
+  activityLoading.value = true;
+  try {
+    const { data } = await activityAPI.list({ limit: 10 });
+    activities.value = data.activities || [];
+  } catch (err: any) {
+    console.error('Failed to load activities:', err);
+    // Don't show error for activities - it's not critical
+  } finally {
+    activityLoading.value = false;
+  }
+};
 
-function getLevelEmoji(level: number): string {
-  return levelEmojis[level] || '🤝';
-}
+const loadChartData = async () => {
+  chartLoading.value = true;
+  try {
+    const { data } = await activityAPI.chart({ days: chartDays.value });
+    chartData.value = data.data || [];
+  } catch (err: any) {
+    console.error('Failed to load chart data:', err);
+  } finally {
+    chartLoading.value = false;
+  }
+};
 
-async function refresh() {
-  await Promise.all([
-    userStore.fetchCurrentUser(),
-    userStore.fetchStats(),
-  ]);
-}
+const refreshData = async () => {
+  loading.value = true;
+  try {
+    await Promise.all([
+      loadStats(),
+      loadActivities(),
+      loadChartData(),
+    ]);
+    success('Data refreshed successfully');
+  } catch (err) {
+    showError('Failed to refresh data');
+  } finally {
+    loading.value = false;
+  }
+};
 
-onMounted(() => {
-  refresh();
+// Helpers
+const activityIcon = (type: string) => {
+  const icons: Record<string, string> = {
+    commission: '💵',
+    deposit: '💰',
+    customer: '👤',
+    agent: '🤝',
+  };
+  return icons[type] || '📋';
+};
+
+const formatDate = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString();
+};
+
+// Auto-refresh every 30 seconds
+let refreshInterval: any;
+
+onMounted(async () => {
+  await refreshData();
+  
+  // Auto-refresh every 30 seconds
+  refreshInterval = setInterval(() => {
+    loadStats();
+    loadActivities();
+  }, 30000);
+});
+
+// Cleanup on unmount
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+  }
 });
 </script>
-

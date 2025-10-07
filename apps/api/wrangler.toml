@@ -44,6 +44,7 @@ database_id = "" # staging database
 
 [env.production]
 name = "telegram-affiliate-api"
+account_id = "80693377f3abb78e00820aa69a415ce4"
 vars = { NODE_ENV = "production", PUBLIC_URL = "https://telegram-affiliate-api.workers.dev", TELEGRAM_BOT_USERNAME = "Firesupportcs_bot" }
 
 [[env.production.d1_databases]]

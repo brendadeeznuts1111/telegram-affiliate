@@ -1,5 +1,5 @@
 /**
- * Worker Bot Instance
+ * Worker Bot Instance - Complete Implementation with Phase 1 Features
  * Grammy bot configured for Cloudflare Workers with D1
  * Uses unified database abstraction from @affiliate/database
  */
@@ -51,10 +51,15 @@ export async function createWorkerBot(env: WorkerContext['env']): Promise<Bot<Wo
     await next();
   });
 
-  // Import and register handlers
+  // Register all handlers
   registerCommands(bot);
-  registerCallbacks(bot);
   registerMessages(bot);
+  registerCallbacks(bot);
+
+  // Error handler
+  bot.catch((err) => {
+    console.error('Bot error:', err);
+  });
 
   return bot;
 }
@@ -69,29 +74,105 @@ function registerCommands(bot: Bot<WorkerContext>) {
       const { startHandler } = await import('./handlers/start.handler');
       return startHandler(ctx);
     },
+    
+    // Dashboard
     dashboard: async (ctx: WorkerContext) => {
       const { dashboardHandler } = await import('./handlers/dashboard.handler');
       return dashboardHandler(ctx);
     },
+    
+    // Customer management
+    addcustomer: async (ctx: WorkerContext) => {
+      const { addCustomerHandler } = await import('./handlers/customer.handler');
+      return addCustomerHandler(ctx);
+    },
+    customers: async (ctx: WorkerContext) => {
+      const { listCustomersHandler } = await import('./handlers/customer.handler');
+      return listCustomersHandler(ctx);
+    },
+    
+    // Deposit management
+    deposit: async (ctx: WorkerContext) => {
+      const { depositHandler } = await import('./handlers/deposit.handler');
+      return depositHandler(ctx);
+    },
+    deposits: async (ctx: WorkerContext) => {
+      const { listDepositsHandler } = await import('./handlers/deposit.handler');
+      return listDepositsHandler(ctx);
+    },
+    
+    // Commission tracking
+    commissions: async (ctx: WorkerContext) => {
+      const { commissionsHandler } = await import('./handlers/commission.handler');
+      return commissionsHandler(ctx);
+    },
+    pending: async (ctx: WorkerContext) => {
+      const { pendingCommissionsHandler } = await import('./handlers/commission.handler');
+      return pendingCommissionsHandler(ctx);
+    },
+    paid: async (ctx: WorkerContext) => {
+      const { paidCommissionsHandler } = await import('./handlers/commission.handler');
+      return paidCommissionsHandler(ctx);
+    },
+    
+    // QR code
     qr: async (ctx: WorkerContext) => {
       const { qrHandler } = await import('./handlers/qr.handler');
       return qrHandler(ctx);
     },
+    
+    // Withdrawal (admin)
     withdraw: async (ctx: WorkerContext) => {
       const { withdrawHandler } = await import('./handlers/withdraw.handler');
       return withdrawHandler(ctx);
     },
+    
+    // Super agent panel
     super: async (ctx: WorkerContext) => {
       const { superHandler } = await import('./handlers/super.handler');
       return superHandler(ctx);
     },
   };
 
+  // Register all commands
   bot.command('start', handlers.start);
   bot.command('dashboard', handlers.dashboard);
+  bot.command('addcustomer', handlers.addcustomer);
+  bot.command('customers', handlers.customers);
+  bot.command('deposit', handlers.deposit);
+  bot.command('deposits', handlers.deposits);
+  bot.command('commissions', handlers.commissions);
+  bot.command('pending', handlers.pending);
+  bot.command('paid', handlers.paid);
   bot.command('qr', handlers.qr);
   bot.command('withdraw', handlers.withdraw);
   bot.command('super', handlers.super);
+
+  console.log('✅ Registered 12 bot commands');
+}
+
+/**
+ * Register message handlers for conversation flows
+ */
+function registerMessages(bot: Bot<WorkerContext>) {
+  // Handle text messages for conversation flows
+  bot.on('message:text', async (ctx) => {
+    // Skip if it's a command
+    if (ctx.message.text?.startsWith('/')) return;
+
+    // Try customer flow handler
+    const { handleCustomerFlow } = await import('./handlers/customer.handler');
+    const customerHandled = await handleCustomerFlow(ctx);
+    if (customerHandled) return;
+
+    // Try deposit flow handler
+    const { handleDepositFlow } = await import('./handlers/deposit.handler');
+    const depositHandled = await handleDepositFlow(ctx);
+    if (depositHandled) return;
+
+    // If no flow handled it, just log
+    console.log('Unhandled text message:', ctx.message.text);
+  });
 }
 
 /**
@@ -99,29 +180,11 @@ function registerCommands(bot: Bot<WorkerContext>) {
  */
 function registerCallbacks(bot: Bot<WorkerContext>) {
   bot.on('callback_query:data', async (ctx) => {
-    await ctx.answerCallbackQuery();
-
-    const data = ctx.callbackQuery?.data;
-    if (!data) return;
-
     const { callbackHandler } = await import('./handlers/callback.handler');
     return callbackHandler(ctx);
   });
-}
 
-/**
- * Register message handlers
- */
-function registerMessages(bot: Bot<WorkerContext>) {
-  // Handle text messages (for customer data input, etc.)
-  bot.on('message:text', async (ctx) => {
-    // Skip if it's a command
-    if (ctx.message.text?.startsWith('/')) return;
-    
-    // Import and use message handler if needed
-    // For now, just log
-    console.log('Received text message:', ctx.message.text);
-  });
+  console.log('✅ Registered callback handler');
 }
 
 /**
@@ -130,4 +193,3 @@ function registerMessages(bot: Bot<WorkerContext>) {
 export function getWebhookHandler(bot: Bot<WorkerContext>) {
   return webhookCallback(bot, 'hono');
 }
-

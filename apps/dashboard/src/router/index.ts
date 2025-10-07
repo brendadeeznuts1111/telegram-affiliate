@@ -18,6 +18,16 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Commissions.vue'),
   },
   {
+    path: '/customers',
+    name: 'customers',
+    component: () => import('@/views/Customers.vue'),
+  },
+  {
+    path: '/deposits',
+    name: 'deposits',
+    component: () => import('@/views/Deposits.vue'),
+  },
+  {
     path: '/affiliate',
     name: 'affiliate',
     component: () => import('@/views/AffiliateHub.vue'),
