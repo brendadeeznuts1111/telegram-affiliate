@@ -1,67 +1,57 @@
 import { Hono } from 'hono';
 import { AgentTreeNodeSchema } from '@affiliate/schemas';
-import { db } from '../utils/db';
+import type { UserRepository } from '@affiliate/database';
 
 const app = new Hono();
 
 // GET /api/agent/tree
-app.get('/tree', (c) => {
-  const userId = c.get('userId');
+app.get('/tree', async (c) => {
+  const userId = c.get('userId') as number;
+  const userRepository = c.get('userRepository') as UserRepository;
   
   // Build tree recursively
-  const tree = buildAgentTree(userId);
+  const tree = await buildAgentTree(userRepository, userId);
   
   return c.json(tree);
 });
 
-function buildAgentTree(userId: number, depth = 0, maxDepth = 5): any {
+async function buildAgentTree(
+  userRepository: UserRepository,
+  userId: number,
+  depth = 0,
+  maxDepth = 5
+): Promise<any> {
   if (depth >= maxDepth) return null;
   
-  const user = db.query(`
-    SELECT 
-      user_id,
-      first_name,
-      username,
-      level,
-      total_customers,
-      total_commission
-    FROM users
-    WHERE user_id = ?
-  `).get(userId);
+  const user = await userRepository.getById(userId);
   
   if (!user) return null;
   
   // Get children
-  const children = db.query(`
-    SELECT user_id FROM users WHERE parent_agent_id = ?
-  `).all(userId) as Array<{ user_id: number }>;
+  const children = await userRepository.getSubAgents(userId);
+  
+  const childTrees = await Promise.all(
+    children.map(child => buildAgentTree(userRepository, child.user_id, depth + 1, maxDepth))
+  );
   
   return {
-    ...user,
-    children: children
-      .map(child => buildAgentTree(child.user_id, depth + 1, maxDepth))
-      .filter(Boolean),
+    user_id: user.user_id,
+    first_name: user.first_name,
+    username: user.username,
+    level: user.level || 0,
+    total_customers: user.total_customers || 0,
+    total_commission: user.total_commission || 0,
+    children: childTrees.filter(Boolean),
   };
 }
 
 // GET /api/agent/downline
-app.get('/downline', (c) => {
-  const userId = c.get('userId');
+app.get('/downline', async (c) => {
+  const userId = c.get('userId') as number;
+  const userRepository = c.get('userRepository') as UserRepository;
   
   // Get direct children only
-  const downline = db.query(`
-    SELECT 
-      user_id,
-      first_name,
-      username,
-      level,
-      total_customers,
-      total_commission,
-      created_at
-    FROM users
-    WHERE parent_agent_id = ?
-    ORDER BY total_commission DESC
-  `).all(userId);
+  const downline = await userRepository.getSubAgents(userId);
   
   return c.json(downline);
 });

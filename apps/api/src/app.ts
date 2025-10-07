@@ -19,6 +19,7 @@ import affiliateRoutes from './routes/affiliate';
 // Middleware
 import { telegramAuth } from './middleware/telegram';
 import { errorHandler } from './utils/error-handling';
+import { databaseMiddleware } from './db';
 
 /**
  * Cloudflare Workers Bindings
@@ -66,6 +67,9 @@ export function createApp() {
 
   // Global middleware
   app.use('*', logger());
+  
+  // Database middleware (inject db and repositories into context)
+  app.use('*', databaseMiddleware());
 
   // CORS middleware
   app.use('*', async (c, next) => {
