@@ -5,6 +5,7 @@
  */
 
 import { bot } from './core/bot-instance';
+import { createConversation } from '@grammyjs/conversations';
 import { logger } from './utils/logger';
 import { config } from './core/config';
 import { db } from './core/database';
@@ -40,6 +41,15 @@ import {
   superHandler,
   qrHandler,
 } from './api/handlers/affiliate.handler';
+import {
+  addCustomerHandler,
+  addCustomerConversation,
+  listCustomersHandler,
+  customerCallbackHandler,
+} from './api/handlers/customer.handler';
+
+// Register conversations
+bot.use(createConversation(addCustomerConversation));
 
 // Register command handlers
 bot.command('start', startHandler);
@@ -49,6 +59,10 @@ bot.command('dashboard', dashboardHandler);
 bot.command('withdraw', withdrawHandler);
 bot.command('super', superHandler);
 bot.command('qr', qrHandler);
+
+// Customer commands
+bot.command('addcustomer', addCustomerHandler);
+bot.command('customers', listCustomersHandler);
 
 // Level system commands (available to all agents)
 bot.command('level', levelHandler);
@@ -79,6 +93,17 @@ bot.on('callback_query:data', async (ctx, next) => {
   const data = ctx.callbackQuery?.data;
   if (data?.startsWith('admin_')) {
     await adminMenuCallbackHandler(ctx);
+  } else {
+    await next();
+  }
+});
+
+// Customer callbacks
+bot.on('callback_query:data', async (ctx, next) => {
+  const data = ctx.callbackQuery?.data;
+  if (data === 'add_customer' || data === 'view_customers' || data === 'refresh_customers' ||
+      data === 'confirm_customer' || data === 'cancel_customer' || data?.startsWith('deposit_')) {
+    await customerCallbackHandler(ctx);
   } else {
     await next();
   }

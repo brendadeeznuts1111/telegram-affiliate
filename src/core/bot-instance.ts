@@ -3,7 +3,8 @@
  * Singleton bot configuration and initialization
  */
 
-import { Bot } from 'grammy';
+import { Bot, session } from 'grammy';
+import { conversations, createConversation } from '@grammyjs/conversations';
 import type { BotContext } from '@/types/context';
 import { config } from './config';
 import { logger } from '@/utils/logger';
@@ -11,21 +12,15 @@ import { logger } from '@/utils/logger';
 // Create bot instance
 export const bot = new Bot<BotContext>(config.bot.token);
 
-// Simple session middleware (in-memory for now)
-const sessions = new Map<number, any>();
+// Session middleware (in-memory)
+bot.use(
+  session({
+    initial: () => ({}),
+  })
+);
 
-bot.use(async (ctx, next) => {
-  const userId = ctx.from?.id;
-  if (userId) {
-    if (!sessions.has(userId)) {
-      sessions.set(userId, {});
-    }
-    ctx.session = sessions.get(userId)!;
-  } else {
-    ctx.session = {};
-  }
-  await next();
-});
+// Conversations plugin
+bot.use(conversations());
 
 // Error handler
 bot.catch((err) => {

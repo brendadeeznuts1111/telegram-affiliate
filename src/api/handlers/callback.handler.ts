@@ -42,7 +42,8 @@ export async function callbackHandler(ctx: BotContext) {
         break;
 
       case 'add_customer':
-        await handleAddCustomer(ctx, user);
+        // Now handled by customer.handler
+        await ctx.conversation.enter('addCustomerConversation');
         break;
 
       default:
