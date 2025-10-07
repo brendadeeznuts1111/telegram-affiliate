@@ -27,3 +27,6 @@ export {
 
 // Export migration runner
 export { MigrationRunner } from './migrations/runner';
+
+// Export repositories
+export * from './repositories';
