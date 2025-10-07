@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
+import { getConfig } from '@affiliate/config';
 
 // Import routes
 import userRoutes from './routes/user';
@@ -23,24 +24,13 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Get environment variables with defaults
-function getEnv(c: any, key: string, defaultValue: string = ''): string {
-  return c.env?.[key] || process.env[key] || defaultValue;
-}
+// Get validated configuration
+const config = getConfig(process.env);
 
-// CORS configuration - supports both local and production
-function getCorsOrigins(c: any): string[] {
-  const corsOriginsEnv = getEnv(c, 'CORS_ORIGINS');
-  
-  if (corsOriginsEnv) {
-    return corsOriginsEnv.split(',');
-  }
-  
-  // Default origins for development and production
+// CORS configuration from validated config
+function getCorsOrigins(): string[] {
   return [
-    'http://localhost:5175',
-    'http://localhost:5173',
-    'http://localhost:3000',
+    ...config.api.corsOrigins,
     'http://127.0.0.1:5175',
     'http://127.0.0.1:5173',
     'https://telegram-affiliate-dashboard.pages.dev',
@@ -51,7 +41,7 @@ function getCorsOrigins(c: any): string[] {
 app.use('*', logger());
 
 app.use('*', async (c, next) => {
-  const origins = getCorsOrigins(c);
+  const origins = getCorsOrigins();
   const origin = c.req.header('origin') || '';
   
   // Check if origin is allowed
@@ -76,12 +66,10 @@ app.route('/health', healthRoutes);
 
 // Root endpoint
 app.get('/', (c) => {
-  const environment = getEnv(c, 'ENVIRONMENT', 'production');
-  
   return c.json({ 
     message: 'Telegram Affiliate API',
     version: '1.0.0',
-    environment,
+    environment: config.env,
     endpoints: {
       health: '/health',
       api: '/api/*'
@@ -107,17 +95,16 @@ app.route('/api/monitoring', monitoringRoutes);
 app.onError(customErrorHandler);
 
 // For local development with Bun
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3001;
-
-if (process.env.NODE_ENV !== 'production') {
+if (config.env !== 'production') {
   console.log(`🚀 API Server starting...`);
-  console.log(`📡 Port: ${port}`);
-  console.log(`🔗 URL: http://localhost:${port}`);
-  console.log(`🌍 Environment: ${process.env.ENVIRONMENT || 'development'}`);
+  console.log(`📡 Port: ${config.api.port}`);
+  console.log(`🔗 URL: http://${config.api.host}:${config.api.port}`);
+  console.log(`🌍 Environment: ${config.env}`);
   console.log(`💚 Bun ${Bun.version}`);
+  console.log(`\n✅ Configuration validated successfully`);
 }
 
 export default {
-  port,
+  port: config.api.port,
   fetch: app.fetch,
 };

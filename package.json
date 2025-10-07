@@ -109,6 +109,7 @@
   },
   "dependencies": {
     "grammy": "^1.38.2",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "zod": "^4.1.12"
   }
 }
