@@ -1,5 +1,7 @@
 import { Hono } from 'hono';
 import { createWorkerBot, getWebhookHandler } from '../bot/worker-bot';
+import { telegramUpdateSchema } from '@affiliate/schemas';
+import { ValidationError } from '@affiliate/errors';
 
 type Bindings = {
   BOT_TOKEN: string;
@@ -8,6 +10,7 @@ type Bindings = {
   AFFILIATE_KV: KVNamespace;
   PUBLIC_URL?: string;
   TELEGRAM_BOT_USERNAME?: string;
+  WEBHOOK_SECRET?: string;
 };
 
 export const telegram = new Hono<{ Bindings: Bindings }>();
@@ -25,6 +28,25 @@ telegram.post('/webhook', async (c) => {
   }
 
   try {
+    // Optional: Validate webhook secret if configured
+    const webhookSecret = c.env.WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const providedSecret = c.req.header('X-Telegram-Bot-Api-Secret-Token');
+      if (providedSecret !== webhookSecret) {
+        console.error('Invalid webhook secret');
+        return c.json({ error: 'Unauthorized' }, 401);
+      }
+    }
+
+    // Parse and validate the update
+    const body = await c.req.json();
+    const updateResult = telegramUpdateSchema.safeParse(body);
+    
+    if (!updateResult.success) {
+      console.error('Invalid update format:', updateResult.error);
+      return c.json({ error: 'Invalid update format' }, 400);
+    }
+
     // Create bot instance with environment
     const bot = createWorkerBot({
       BOT_TOKEN: c.env.BOT_TOKEN,
