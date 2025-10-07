@@ -48,7 +48,7 @@ telegram.post('/webhook', async (c) => {
     }
 
     // Create bot instance with environment
-    const bot = createWorkerBot({
+    const bot = await createWorkerBot({
       BOT_TOKEN: c.env.BOT_TOKEN,
       ADMIN_IDS: c.env.ADMIN_IDS,
       DB: c.env.DB,

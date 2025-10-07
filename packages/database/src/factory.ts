@@ -1,12 +1,11 @@
 /**
  * Database Factory
  * Creates the appropriate database adapter based on configuration
+ * 
+ * Uses dynamic imports to avoid bundling Bun-specific modules in Workers
  */
 
 import type { IDatabaseAdapter, DatabaseConfig } from './interface';
-import { SqliteAdapter } from './adapters/sqlite';
-import { D1Adapter } from './adapters/d1';
-import { MockAdapter } from './adapters/mock';
 import { DatabaseError } from '@affiliate/errors';
 
 /**
@@ -15,25 +14,32 @@ import { DatabaseError } from '@affiliate/errors';
  * @param config Database configuration
  * @returns Database adapter instance
  */
-export function createDatabase(
+export async function createDatabase(
   type: 'sqlite' | 'd1' | 'mock',
   config: DatabaseConfig
-): IDatabaseAdapter {
+): Promise<IDatabaseAdapter> {
   switch (type) {
-    case 'sqlite':
+    case 'sqlite': {
       if (!config.path) {
         throw new DatabaseError('SQLite path is required');
       }
+      // Dynamic import to avoid bundling in Cloudflare Workers
+      const { SqliteAdapter } = await import('./adapters/sqlite');
       return new SqliteAdapter(config);
+    }
 
-    case 'd1':
+    case 'd1': {
       if (!config.d1Database) {
         throw new DatabaseError('D1 database instance is required');
       }
+      const { D1Adapter } = await import('./adapters/d1');
       return new D1Adapter(config);
+    }
 
-    case 'mock':
+    case 'mock': {
+      const { MockAdapter } = await import('./adapters/mock');
       return new MockAdapter(config);
+    }
 
     default:
       throw new DatabaseError(`Unknown database type: ${type}`);
@@ -44,10 +50,10 @@ export function createDatabase(
  * Create database from environment
  * Auto-detects the appropriate adapter based on available configuration
  */
-export function createDatabaseFromEnv(env: Record<string, string | undefined>): IDatabaseAdapter {
+export async function createDatabaseFromEnv(env: Record<string, string | undefined>): Promise<IDatabaseAdapter> {
   // Check if D1 database is available (Cloudflare Workers)
   if ('DB' in env && typeof env.DB === 'object') {
-    return createDatabase('d1', {
+    return await createDatabase('d1', {
       d1Database: env.DB as unknown as D1Database,
       debug: env.DEBUG === 'true',
     });
@@ -55,7 +61,7 @@ export function createDatabaseFromEnv(env: Record<string, string | undefined>): 
 
   // Fall back to SQLite
   const dbPath = env.DB_PATH || env.DATABASE_PATH || './data/affiliate_system.db';
-  return createDatabase('sqlite', {
+  return await createDatabase('sqlite', {
     path: dbPath,
     journalMode: (env.DB_JOURNAL_MODE as any) || 'WAL',
     foreignKeys: env.DB_FOREIGN_KEYS !== 'false',
@@ -66,6 +72,6 @@ export function createDatabaseFromEnv(env: Record<string, string | undefined>): 
 /**
  * Create a mock database for testing
  */
-export function createMockDatabase(): IDatabaseAdapter {
-  return createDatabase('mock', {});
+export async function createMockDatabase(): Promise<IDatabaseAdapter> {
+  return await createDatabase('mock', {});
 }

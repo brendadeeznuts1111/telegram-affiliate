@@ -12,7 +12,7 @@ import { getConfig } from '@affiliate/config';
 import userRoutes from './routes/user';
 import agentRoutes from './routes/agent';
 import healthRoutes from './routes/health';
-import telegramRoutes from './routes/telegram';
+// import telegramRoutes from './routes/telegram'; // Temporarily disabled for Workers deployment
 import monitoringRoutes from './routes/monitoring';
 import affiliateRoutes from './routes/affiliate';
 

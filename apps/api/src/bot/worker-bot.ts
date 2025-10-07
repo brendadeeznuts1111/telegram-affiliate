@@ -5,8 +5,8 @@
  */
 
 import { Bot, webhookCallback, Context } from 'grammy';
-import { createDatabase, UserRepository, CustomerRepository, CommissionRepository, DepositRepository } from '@affiliate/database';
-import type { IDatabaseAdapter } from '@affiliate/database';
+import { createDatabase, UserRepository, CustomerRepository, CommissionRepository, DepositRepository } from '@affiliate/database/index.workers';
+import type { IDatabaseAdapter } from '@affiliate/database/index.workers';
 
 // Type for our custom context with D1 and environment
 export interface WorkerContext extends Context {
@@ -28,14 +28,11 @@ export interface WorkerContext extends Context {
 /**
  * Create and configure bot instance for Worker
  */
-export function createWorkerBot(env: WorkerContext['env']): Bot<WorkerContext> {
+export async function createWorkerBot(env: WorkerContext['env']): Promise<Bot<WorkerContext>> {
   const bot = new Bot<WorkerContext>(env.BOT_TOKEN);
 
   // Create D1 database adapter
-  const db = createDatabase({
-    type: 'd1',
-    database: env.DB,
-  });
+  const db = await createDatabase('d1', { d1Database: env.DB });
 
   // Create repository instances
   const userRepository = new UserRepository(db);

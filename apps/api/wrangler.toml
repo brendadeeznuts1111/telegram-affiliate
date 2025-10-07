@@ -44,10 +44,14 @@ database_id = "" # staging database
 
 [env.production]
 name = "telegram-affiliate-api"
-vars = { NODE_ENV = "production" }
+vars = { NODE_ENV = "production", PUBLIC_URL = "https://telegram-affiliate-api.workers.dev", TELEGRAM_BOT_USERNAME = "Firesupportcs_bot" }
 
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "affiliate-system"
-database_id = "" # production database
+database_id = "e6cc2427-f81b-4849-bcba-acacb3aedc70" # production database
+
+[[env.production.kv_namespaces]]
+binding = "AFFILIATE_KV"
+id = "c2b03d2d2c5a48869f818923388306d2"
 

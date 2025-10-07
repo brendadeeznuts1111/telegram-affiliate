@@ -1,8 +1,12 @@
 /**
  * SQLite Database Adapter
  * Wraps bun:sqlite with async interface
+ * 
+ * ⚠️ This module is ONLY for Bun runtime - NOT for Cloudflare Workers!
+ * For Workers, use D1Adapter instead.
  */
 
+// @ts-ignore - mark as external for esbuild
 import { Database } from 'bun:sqlite';
 import type { IDatabaseAdapter, DatabaseConfig, QueryResult, TransactionFn } from '../interface';
 import { DatabaseError } from '@affiliate/errors';
