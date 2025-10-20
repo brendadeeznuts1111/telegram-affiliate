@@ -95,7 +95,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@playwright/test": "^1.40.0",
+    "@playwright/test": "^1.56.1",
     "@types/bun": "latest",
     "@types/qrcode": "^1.5.5",
     "@vitest/coverage-v8": "^1.0.0",
